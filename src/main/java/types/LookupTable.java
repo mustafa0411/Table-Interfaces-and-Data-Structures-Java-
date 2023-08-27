@@ -66,7 +66,7 @@ public class LookupTable implements Table {
 	@Override
 	public List<Object> get(String key) {
 		int i = indexOf(key);
-		if(array[i] != null) {
+		if(array[i] != null) { //check for null before accessing
 			return array[i].fields();
 		}
 		return null;
@@ -80,7 +80,7 @@ public class LookupTable implements Table {
 		Row here = array[i];
 
 		if (here != null) {
-			here = null;
+			array[i] = null;
 			return here.fields();
 		}
 
