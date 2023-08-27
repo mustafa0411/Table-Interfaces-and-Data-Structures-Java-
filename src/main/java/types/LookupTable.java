@@ -1,5 +1,6 @@
 package types;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringJoiner;
@@ -119,7 +120,14 @@ public class LookupTable implements Table {
 
 	@Override
 	public boolean equals(Object obj) {
-		throw new UnsupportedOperationException();
+		if(this == obj ) {
+			return true;
+		}
+		if(!(obj instanceof LookupTable)) {
+			return false;
+		}
+		LookupTable other = (LookupTable) obj;
+		return Arrays.equals(array, other.array);
 	}
 
 	@Override
