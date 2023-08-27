@@ -1,5 +1,6 @@
 package types;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -132,7 +133,13 @@ public class LookupTable implements Table {
 
 	@Override
 	public Iterator<Row> iterator() {
-		throw new UnsupportedOperationException();
+		List<Row> rows = new ArrayList<>();
+		for(Row row : array) {
+			if(row != null) {
+				rows.add(row);
+			}
+		}
+		return rows.iterator();
 	}
 
 	@Override
