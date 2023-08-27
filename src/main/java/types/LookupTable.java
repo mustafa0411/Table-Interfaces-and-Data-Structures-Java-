@@ -18,6 +18,7 @@ public class LookupTable implements Table {
 
 	// TODO: This constructor has 1 initialization error.
 	public LookupTable(int degree) {
+		this.degree = degree; //initialize the degree field
 		clear();
 	}
 
@@ -36,104 +37,104 @@ public class LookupTable implements Table {
 		char c = key.charAt(0);
 		if (c >= 'a' && c <= 'z') {
 			return c - 'a';
-			else if() {
-
-
-			}
-
-			else {
-				throw new IllegalArgumentException("Key must be a lowercase or uppercase letter");
-			}
+		}else if(c >= 'A' && c <= 'Z') {
+			return c - 'A';
 		}
-
-		// TODO: This method is missing guard condition(s).
-		// TODO: This method has 1 assignment error.
-		@Override
-		public List<Object> put(String key, List<Object> fields) {
-			int i = indexOf(key);
-
-			Row here = array[i];
-			Row make = new Row(key, fields);
-
-			if (here != null) {
-				array[i] = make;
-				return here.fields();
-			}
-			array[i] = make;
-			return null;
-		}
-
-		// TODO: This method has 1 logic error.
-		@Override
-		public List<Object> get(String key) {
-			int i = indexOf(key);
-
-			return array[i].fields();
-		}
-
-		// TODO: This method has 1 assignment error.
-		@Override
-		public List<Object> remove(String key) {
-			int i = indexOf(key);
-
-			Row here = array[i];
-
-			if (here != null) {
-				here = null;
-				return here.fields();
-			}
-
-			return null;
-		}
-
-		// TODO: This method has 1 result error.
-		@Override
-		public int degree() {
-			throw new UnsupportedOperationException();
-		}
-
-		// TODO: This method has 1 logic error.
-		@Override
-		public int size() {
-			int size = 0;
-			for (Row row: array) {
-				if(row != null) {
-					size++;
-				}
-			}
-			return size;
-		}
-
-		// TODO: This method has 1 assignment error.
-		@Override
-		public int hashCode() {
-			int fingerprint = 0;
-			for (Row row: array) {
-				if (row != null) {
-					fingerprint += row.hashCode();
-				}
-			}
-			return fingerprint;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public Iterator<Row> iterator() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public String toString() {
-			StringJoiner sj = new StringJoiner(", ", "LookupTable[", "]");
-			for (Row row: array) {
-				if (row != null) {
-					sj.add(row.key() + "=" + row.fields());
-				}
-			}
-			return sj.toString();
+		else {
+			throw new IllegalArgumentException("Key must be a lowercase or uppercase letter");
 		}
 	}
+
+	// TODO: This method is missing guard condition(s).
+	// TODO: This method has 1 assignment error.
+	@Override
+	public List<Object> put(String key, List<Object> fields) {
+		int i = indexOf(key);
+
+		Row here = array[i];
+		Row make = new Row(key, fields);
+
+		if (here != null) {
+			array[i] = make;
+			return here.fields();
+		}
+		array[i] = make;
+		return null;
+	}
+
+	// TODO: This method has 1 logic error.
+	@Override
+	public List<Object> get(String key) {
+		int i = indexOf(key);
+		if(array[i] != null) {
+			return array[i].fields();
+		}
+		return null;
+	}
+
+	// TODO: This method has 1 assignment error.
+	@Override
+	public List<Object> remove(String key) {
+		int i = indexOf(key);
+
+		Row here = array[i];
+
+		if (here != null) {
+			here = null;
+			return here.fields();
+		}
+
+		return null;
+	}
+
+	// TODO: This method has 1 result error.
+	@Override
+	public int degree() {
+		throw new UnsupportedOperationException();
+	}
+
+	// TODO: This method has 1 logic error.
+	@Override
+	public int size() {
+		int size = 0;
+		for (Row row: array) {
+			if(row != null) {
+				size++;
+			}
+		}
+		return size;
+	}
+
+	// TODO: This method has 1 assignment error.
+	@Override
+	public int hashCode() {
+		int fingerprint = 0;
+		for (Row row: array) {
+			if (row != null) {
+				fingerprint += row.hashCode();
+			}
+		}
+		return fingerprint;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Iterator<Row> iterator() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String toString() {
+		StringJoiner sj = new StringJoiner(", ", "LookupTable[", "]");
+		for (Row row: array) {
+			if (row != null) {
+				sj.add(row.key() + "=" + row.fields());
+			}
+		}
+		return sj.toString();
+	}
+}
