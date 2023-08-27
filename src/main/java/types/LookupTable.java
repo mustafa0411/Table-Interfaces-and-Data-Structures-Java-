@@ -90,7 +90,7 @@ public class LookupTable implements Table {
 	// TODO: This method has 1 result error.
 	@Override
 	public int degree() {
-		throw new UnsupportedOperationException();
+		return degree; //return the initialized degree
 	}
 
 	// TODO: This method has 1 logic error.
