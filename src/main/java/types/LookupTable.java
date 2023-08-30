@@ -57,8 +57,9 @@ public class LookupTable implements Table {
 		Row make = new Row(key, fields);
 
 		if (here != null) {
-			array[i] = make;
-			return here.fields();
+			List<Object> originalFields = here.fields();
+			here.setFields(fields); // Update fields in the existing row
+			return originalFields;
 		}
 		array[i] = make;
 		return null;
