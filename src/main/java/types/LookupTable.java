@@ -51,6 +51,9 @@ public class LookupTable implements Table {
 	// TODO: This method has 1 assignment error.
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
+		if (key.length() != 1) {
+			throw new IllegalArgumentException("Key must be length 1");
+		}
 		int i = indexOf(key);
 
 		Row here = array[i];
