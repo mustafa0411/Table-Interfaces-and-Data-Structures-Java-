@@ -51,26 +51,27 @@ public class LookupTable implements Table {
 	// TODO: This method has 1 assignment error.
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-	    if (key.length() != 1) {
-	        throw new IllegalArgumentException("Key must be length 1");
-	    }
+		if (key.length() != 1) {
+			throw new IllegalArgumentException("Key must be length 1");
+		}
 
-	    int i = indexOf(key);
+		if (fields.size() != degree - 1) { // Check the degree of the fields
+			throw new IllegalArgumentException("Wrong number of fields. Expected degree - 1 fields.");
+		}
 
-	    if (fields.size() != degree - 1) { // Check the degree of the fields
-	        throw new IllegalArgumentException("Wrong number of fields. Expected degree - 1 fields.");
-	    }
 
-	    Row here = array[i];
-	    Row make = new Row(key, fields);
+		int i = indexOf(key);
 
-	    if (here != null) {
-	        array[i] = make;
-	        return here.fields();
-	    }
-	    
-	    array[i] = make;
-	    return null;
+		Row here = array[i];
+		Row make = new Row(key, fields);
+
+		if (here != null) {
+			array[i] = make;
+			return here.fields();
+		}
+
+		array[i] = make;
+		return null;
 	}
 	// TODO: This method has 1 logic error.
 	@Override
