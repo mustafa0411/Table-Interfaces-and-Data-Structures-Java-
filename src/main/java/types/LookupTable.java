@@ -11,8 +11,8 @@ import models.Table;
 
 public class LookupTable implements Table {
 	/*
-	 * TODO: For the Training Module, test and debug
-	 * the errors in this implementation.
+	 * TODO: For the Training Module, test and debug the errors in this
+	 * implementation.
 	 */
 
 	private Row[] array;
@@ -20,14 +20,14 @@ public class LookupTable implements Table {
 
 	// TODO: This constructor has 1 initialization error.
 	public LookupTable(int degree) {
-		this.degree = degree; //initialize the degree field
+		this.degree = degree; // initialize the degree field
 		clear();
 	}
 
 	// TODO: This method has 1 value error.
 	@Override
 	public void clear() {
-		array = new Row[26];
+		array = new Row[54]; // Changed the value from 26 to 54 to account for upper and lower case letters.
 	}
 
 	// TODO: This helper method has 1 logic error.
@@ -35,14 +35,13 @@ public class LookupTable implements Table {
 		if (key.length() != 1) {
 			throw new IllegalArgumentException("Key must be length 1");
 		}
-
+		// Half Upper
 		char c = key.charAt(0);
 		if (c >= 'a' && c <= 'z') {
 			return c - 'a';
-		}else if(c >= 'A' && c <= 'Z') {
-			return c - 'A';
-		}
-		else {
+		} else if (c >= 'A' && c <= 'Z') {
+			return c - 'A' + 26;
+		} else {
 			throw new IllegalArgumentException("Key must be a lowercase or uppercase letter");
 		}
 	}
@@ -51,14 +50,13 @@ public class LookupTable implements Table {
 	// TODO: This method has 1 assignment error.
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		if (key.length() != 1) {
+		if (key.length() != 1) {// check the length of the keys
 			throw new IllegalArgumentException("Key must be length 1");
 		}
 
 		if (fields.size() != degree - 1) { // Check the degree of the fields
 			throw new IllegalArgumentException("Wrong number of fields. Expected degree - 1 fields.");
 		}
-
 
 		int i = indexOf(key);
 
@@ -73,11 +71,12 @@ public class LookupTable implements Table {
 		array[i] = make;
 		return null;
 	}
+
 	// TODO: This method has 1 logic error.
 	@Override
 	public List<Object> get(String key) {
 		int i = indexOf(key);
-		if(array[i] != null) { //check for null before accessing
+		if (array[i] != null) { // check for null before accessing
 			return array[i].fields();
 		}
 		return null;
@@ -101,15 +100,15 @@ public class LookupTable implements Table {
 	// TODO: This method has 1 result error.
 	@Override
 	public int degree() {
-		return degree; //return the initialized degree
+		return degree; // return the initialized degree
 	}
 
 	// TODO: This method has 1 logic error.
 	@Override
 	public int size() {
 		int size = 0;
-		for (Row row: array) {
-			if(row != null) {
+		for (Row row : array) {
+			if (row != null) {
 				size++;
 			}
 		}
@@ -120,7 +119,7 @@ public class LookupTable implements Table {
 	@Override
 	public int hashCode() {
 		int fingerprint = 0;
-		for (Row row: array) {
+		for (Row row : array) {
 			if (row != null) {
 				fingerprint += row.hashCode();
 			}
@@ -130,10 +129,10 @@ public class LookupTable implements Table {
 
 	@Override
 	public boolean equals(Object obj) {
-		if(this == obj ) {
+		if (this == obj) {
 			return true;
 		}
-		if(!(obj instanceof LookupTable)) {
+		if (!(obj instanceof LookupTable)) {
 			return false;
 		}
 		LookupTable other = (LookupTable) obj;
@@ -143,8 +142,8 @@ public class LookupTable implements Table {
 	@Override
 	public Iterator<Row> iterator() {
 		List<Row> rows = new ArrayList<>();
-		for(Row row : array) {
-			if(row != null) {
+		for (Row row : array) {
+			if (row != null) {
 				rows.add(row);
 			}
 		}
@@ -154,7 +153,7 @@ public class LookupTable implements Table {
 	@Override
 	public String toString() {
 		StringJoiner sj = new StringJoiner(", ", "LookupTable[", "]");
-		for (Row row: array) {
+		for (Row row : array) {
 			if (row != null) {
 				sj.add(row.key() + "=" + row.fields());
 			}
