@@ -9,45 +9,68 @@ import java.util.StringJoiner;
 import models.Row;
 import models.Table;
 
+/**
+ * Represents a LookupTable implementation that stores key-value pairs. This
+ * implementation uses an array to store rows of data.
+ *
+ * @author Mustafa Al-Shebeeb
+ *
+ * @version 1.0
+ * @since 09-1-2023
+ */
+
 public class LookupTable implements Table {
-	/*
-	 * TODO: For the Training Module, test and debug the errors in this
-	 * implementation.
+	// initialize variables
+	private Row[] array; // An array to store rows
+	private int degree; // The degree of the table
+
+	/**
+	 * Constructs a LookupTable with the given degree.
+	 *
+	 * @param degree The degree of the table
 	 */
-
-	private Row[] array;
-	private int degree;
-
-	// TODO: This constructor has 1 initialization error.
 	public LookupTable(int degree) {
 		this.degree = degree; // initialize the degree field
-		clear();
+		clear(); // Initialize the array
 	}
 
-	// TODO: This method has 1 value error.
+	/**
+	 * Clears the table by creating a new array of rows.
+	 */
 	@Override
 	public void clear() {
 		array = new Row[54]; // Changed the value from 26 to 54 to account for upper and lower case letters.
 	}
 
-	// TODO: This helper method has 1 logic error.
+	/**
+	 * Helper method to find the index for a given key (a single character).
+	 *
+	 * @param key The key to find the index for
+	 * @return The index corresponding to the key
+	 */
 	private int indexOf(String key) {
 		if (key.length() != 1) {
 			throw new IllegalArgumentException("Key must be length 1");
 		}
-		// Half Upper
+		// lower case letters
 		char c = key.charAt(0);
 		if (c >= 'a' && c <= 'z') {
 			return c - 'a';
-		} else if (c >= 'A' && c <= 'Z') {
-			return c - 'A' + 26;
+		} else if (c >= 'A' && c <= 'Z') { // upper case letters
+			return c - 'A' + 26; // shift 26 to reach upper case
 		} else {
 			throw new IllegalArgumentException("Key must be a lowercase or uppercase letter");
 		}
 	}
 
-	// TODO: This method is missing guard condition(s).
-	// TODO: This method has 1 assignment error.
+	/**
+	 * Puts a key-value pair into the table.
+	 *
+	 * @param key    The key for the pair (must be a single character)
+	 * @param fields The values associated with the key
+	 * @return The previous values associated with the key, or null if the key was
+	 *         not present
+	 */
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		if (key.length() != 1) {// check the length of the keys
@@ -72,7 +95,12 @@ public class LookupTable implements Table {
 		return null;
 	}
 
-	// TODO: This method has 1 logic error.
+	/**
+	 * Gets the values associated with a key.
+	 *
+	 * @param key The key to retrieve values for
+	 * @return The values associated with the key, or null if the key is not present
+	 */
 	@Override
 	public List<Object> get(String key) {
 		int i = indexOf(key);
@@ -82,7 +110,13 @@ public class LookupTable implements Table {
 		return null;
 	}
 
-	// TODO: This method has 1 assignment error.
+	/**
+	 * Removes a key and its associated values from the table.
+	 *
+	 * @param key The key to remove
+	 * @return The values associated with the removed key, or null if the key was
+	 *         not present
+	 */
 	@Override
 	public List<Object> remove(String key) {
 		int i = indexOf(key);
@@ -97,13 +131,21 @@ public class LookupTable implements Table {
 		return null;
 	}
 
-	// TODO: This method has 1 result error.
+	/**
+	 * Returns the degree of the table.
+	 *
+	 * @return The degree of the table
+	 */
 	@Override
 	public int degree() {
-		return degree; // return the initialized degree
+		return degree;
 	}
 
-	// TODO: This method has 1 logic error.
+	/**
+	 * Returns the number of non-null rows in the table.
+	 *
+	 * @return The number of non-null rows in the table
+	 */
 	@Override
 	public int size() {
 		int size = 0;
@@ -115,7 +157,11 @@ public class LookupTable implements Table {
 		return size;
 	}
 
-	// TODO: This method has 1 assignment error.
+	/**
+	 * Computes the hash code for the table.
+	 *
+	 * @return The hash code for the table
+	 */
 	@Override
 	public int hashCode() {
 		int fingerprint = 0;
@@ -127,6 +173,12 @@ public class LookupTable implements Table {
 		return fingerprint;
 	}
 
+	/**
+	 * Checks if two LookupTables are equal by comparing their arrays of rows.
+	 *
+	 * @param obj The object to compare to this table
+	 * @return True if the tables are equal, false otherwise
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -139,6 +191,11 @@ public class LookupTable implements Table {
 		return Arrays.equals(array, other.array);
 	}
 
+	/**
+	 * Returns an iterator over the non-null rows in the table.
+	 *
+	 * @return An iterator over the non-null rows in the table
+	 */
 	@Override
 	public Iterator<Row> iterator() {
 		List<Row> rows = new ArrayList<>();
@@ -150,6 +207,11 @@ public class LookupTable implements Table {
 		return rows.iterator();
 	}
 
+	/**
+	 * Returns a string representation of the LookupTable.
+	 *
+	 * @return A string representation of the LookupTable
+	 */
 	@Override
 	public String toString() {
 		StringJoiner sj = new StringJoiner(", ", "LookupTable[", "]");
