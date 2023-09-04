@@ -68,7 +68,7 @@ abstract class AbstractModule {
 	@TestInstance(Lifecycle.PER_CLASS)
 	abstract class AbstractTableContainer {
 		String name;
-		int degree;
+		List<String> columns;
 
 		Table subject;
 		ControlTable control;
@@ -221,7 +221,7 @@ abstract class AbstractModule {
 			var fields = fields();
 			var call = "put(%s, %s)".formatted(encode(key), encode(fields));
 
-			if (1 + fields.size() == degree) {
+			if (1 + fields.size() == columns.size()) {
 				logCall(name, call);
 				return dynamicTest(title(call, key), () -> {
 					var expected = control.put(key, fields);
@@ -347,10 +347,10 @@ abstract class AbstractModule {
 			});
 		}
 
-		// Untested: contains(key)
+		// Untested: contains
 
 		void thenTestDegree(String after) {
-			var expected = degree;
+			var expected = columns.size();
 
 			var actual = assertTimeoutPreemptively(ofMillis(TIMEOUT_MILLIS), () -> {
 	        	return subject.degree();
@@ -471,16 +471,58 @@ abstract class AbstractModule {
 			});
 		}
 
+		DynamicTest testName() {
+			var call = "name()";
+			logCall(name, call);
+
+			return dynamicTest(call, () -> {
+				var expected = name;
+
+				var actual = assertTimeoutPreemptively(ofMillis(TIMEOUT_MILLIS), () -> {
+		        	return subject.name();
+		        }, "Timeout in name (infinite loop/recursion likely)");
+
+				assertEquals(
+					expected,
+					actual,
+					"Mismatched name (assignment error likely)"
+				);
+
+				passed++;
+			});
+		}
+
+		DynamicTest testColumns() {
+			var call = "columns()";
+			logCall(name, call);
+
+			return dynamicTest(call, () -> {
+				var expected = columns;
+
+				var actual = assertTimeoutPreemptively(ofMillis(TIMEOUT_MILLIS), () -> {
+		        	return subject.columns();
+		        }, "Timeout in columns (infinite loop/recursion likely)");
+
+				assertEquals(
+					expected,
+					actual,
+					"Mismatched columns (assignment error likely)"
+				);
+
+				passed++;
+			});
+		}
+
 		// Untested: toString
 
-	//	double hitRate() {
-	//		return (double) hits / (hits + misses);
-	//	}
-	//
-	//	@AfterAll
-	//	void auditHitRate() {
-	//		System.err.println(hitRate());
-	//	}
+//		double hitRate() {
+//			return (double) hits / (hits + misses);
+//		}
+//
+//		@AfterAll
+//		void auditHitRate() {
+//			System.err.println(hitRate());
+//		}
 
 		String title(String call) {
 			try {
@@ -564,8 +606,12 @@ abstract class AbstractModule {
 				sj = new StringJoiner(", ", "List.of(", ")");
 			else
 				sj = new StringJoiner(", ");
-			for (var field: fields)
-				sj.add(encode(field));
+			for (var field: fields) {
+				if (field instanceof List<?> flist)
+					sj.add(encode(flist, false, false));
+				else
+					sj.add(encode(field));
+			}
 			return sj.toString();
 		}
 
@@ -605,7 +651,7 @@ abstract class AbstractModule {
 
 		List<Object> fields() {
 			var fields = new LinkedList<>();
-			var d = degree;
+			var d = columns.size();
 			if (RNG.nextDouble() < .01) {
 				if (RNG.nextBoolean())
 					d++;
@@ -717,9 +763,9 @@ class ControlTable implements Table {
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		var put = map.put(key, fields);
-		fingerprint += new Row(key, fields).hashCode();
+		fingerprint += key.hashCode() * 31 + fields.hashCode();
 		if (put != null) {
-			fingerprint -= new Row(key, put).hashCode();
+			fingerprint -= key.hashCode() * 31 + put.hashCode();
 			return put;
 		}
 		return null;
@@ -729,7 +775,7 @@ class ControlTable implements Table {
 	public List<Object> remove(String key) {
 		var rem = map.remove(key);
 		if (rem != null) {
-			fingerprint -= new Row(key, rem).hashCode();
+			fingerprint -= key.hashCode() * 31 + rem.hashCode();
 			return rem;
 		}
 		return null;
@@ -756,17 +802,22 @@ class ControlTable implements Table {
 	}
 
 	@Override
-	public boolean isEmpty() {
-		return map.isEmpty();
-	}
-
-	@Override
 	public int hashCode() {
 		return fingerprint;
 	}
 
 	@Override
 	public Iterator<Row> iterator() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String name() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<String> columns() {
 		throw new UnsupportedOperationException();
 	}
 }
