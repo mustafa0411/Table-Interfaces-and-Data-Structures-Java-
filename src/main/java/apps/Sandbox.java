@@ -13,7 +13,7 @@ public class Sandbox {
 		 * or demonstrate arbitrary code.
 		 */
 
-		Table table1 = new LookupTable(4);
+		Table table1 = new LookupTable("example", List.of("K", "F1", "F2", "F3"));
 
 		table1.put("a", List.of("Abc", 1, true));
 		table1.put("b", List.of("Uvw", 2, false));

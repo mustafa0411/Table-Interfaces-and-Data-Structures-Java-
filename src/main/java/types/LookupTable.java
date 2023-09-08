@@ -23,14 +23,18 @@ public class LookupTable implements Table {
 	// initialize variables
 	private Row[] array; // An array to store rows
 	private int degree; // The degree of the table
+	private String name;
+	private List<String> columns;
 
 	/**
 	 * Constructs a LookupTable with the given degree.
 	 *
 	 * @param degree The degree of the table
 	 */
-	public LookupTable(int degree) {
-		this.degree = degree; // initialize the degree field
+	public LookupTable(String name, List<String> columns) {
+		this.degree = columns.size(); // initialize the degree field
+		this.name = name;
+		this.columns = columns;
 		clear(); // Initialize the array
 	}
 
@@ -215,11 +219,25 @@ public class LookupTable implements Table {
 	@Override
 	public String toString() {
 		StringJoiner sj = new StringJoiner(", ", "LookupTable[", "]");
+		sj.add("name=" + name());
+		sj.add("columns=" + columns());
 		for (Row row : array) {
 			if (row != null) {
 				sj.add(row.key() + "=" + row.fields());
 			}
 		}
 		return sj.toString();
+	}
+
+	@Override
+	public String name() {
+		// TODO Auto-generated method stub
+		return name;
+	}
+
+	@Override
+	public List<String> columns() {
+		// TODO Auto-generated method stub
+		return columns;
 	}
 }
