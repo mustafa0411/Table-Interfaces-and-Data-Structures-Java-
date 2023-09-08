@@ -50,17 +50,17 @@ public class SearchTable implements BoundedTable {
 
 	@Override
 	public int degree() {
-		throw new UnsupportedOperationException();
+		return degree;
 	}
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException();
+		return size;
 	}
 
 	@Override
 	public int capacity() {
-		throw new UnsupportedOperationException();
+		return capacity;
 	}
 
 	@Override
@@ -80,12 +80,12 @@ public class SearchTable implements BoundedTable {
 
 	@Override
 	public String name() {
-		throw new UnsupportedOperationException();
+		return name;
 	}
 
 	@Override
 	public List<String> columns() {
-		throw new UnsupportedOperationException();
+		return columns;
 	}
 
 	@Override
