@@ -3,8 +3,6 @@ package models;
 import java.io.Flushable;
 
 public interface StoredTable extends Table, Flushable, AutoCloseable {
-	public String getDisplayName();
-
 	@Override
 	public default void flush() {
 

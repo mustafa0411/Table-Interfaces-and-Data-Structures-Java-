@@ -33,7 +33,7 @@ final class Module0 extends AbstractModule {
 		@BeforeAll
 		void defineTable() {
 			name = "m0_table1";
-			degree = 3;
+			columns = List.of("k1", "f1a", "f1b");
 		}
 	}
 
@@ -43,7 +43,7 @@ final class Module0 extends AbstractModule {
 		@BeforeAll
 		void defineTable() {
 			name = "m0_table2";
-			degree = 4;
+			columns = List.of("k2", "f2a", "f2b", "f2c");
 		}
 	}
 
@@ -53,7 +53,7 @@ final class Module0 extends AbstractModule {
 		@BeforeAll
 		void defineTable() {
 			name = "m0_table3";
-			degree = 6;
+			columns = List.of("k3", "f3a", "f3b", "f3c", "f3d", "f3e");
 		}
 	}
 
@@ -61,7 +61,8 @@ final class Module0 extends AbstractModule {
 		static final List<String> exempt = List.of(
     		"models",
 			"types",
-			"java.lang"
+			"java.lang",
+			"java.util.ImmutableCollections"
 		);
 
 		@Override
@@ -77,15 +78,19 @@ final class Module0 extends AbstractModule {
 
 			subject = testConstructor(
 				"types.LookupTable",
-				List.of(int.class),
-				List.of(degree),
+				List.of(String.class, List.class),
+				List.of(name, columns),
 				exempt
 			);
 
 			control = new ControlTable();
 
 			return IntStream.range(0, battery).mapToObj(i -> {
-				if (i == 0 || i == battery-1)
+				if (i == 0)
+					return testName();
+				else if (i == 1)
+					return testColumns();
+				else if (i == 2 || i == battery-1)
 					return testClear();
 				else {
 					if (control.size() < volume * .99)
