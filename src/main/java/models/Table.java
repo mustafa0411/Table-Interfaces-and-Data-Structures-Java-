@@ -21,7 +21,7 @@ public interface Table extends Iterable<Row> {
 	public int size();
 
 	public default boolean isEmpty() {
-		throw new UnsupportedOperationException();
+		return size() == 0;
 	}
 
 	@Override

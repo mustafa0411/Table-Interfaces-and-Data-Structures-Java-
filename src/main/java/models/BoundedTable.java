@@ -4,10 +4,10 @@ public interface BoundedTable extends Table {
 	public int capacity();
 
 	public default boolean isFull() {
-		throw new UnsupportedOperationException();
+		return size() == capacity();
 	}
 
 	public default double loadFactor() {
-		throw new UnsupportedOperationException();
+		return (double) size()/capacity();
 	}
 }
