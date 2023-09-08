@@ -63,8 +63,8 @@ public class SearchTable implements BoundedTable {
 	@Override
 	public List<Object> get(String key) {
 		for(int i = 0; i < size; i++) {
-			if(tableArray[i] != null && key.equals(tableArray[i].getKey())) {
-				return tableArray[i].fields();
+			if (tableArray[i].getKey().equals(key)) {
+				return tableArray[i].getFields(); // Found the key, return its fields
 			}
 		}
 		return null;
