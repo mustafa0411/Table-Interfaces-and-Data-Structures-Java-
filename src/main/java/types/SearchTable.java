@@ -28,6 +28,9 @@ public class SearchTable implements BoundedTable {
 
 	@Override
 	public void clear() {
+		capacity = INITIAL_CAPACITY;
+		tableArray = new Row[capacity];
+		size = 0;
 	}
 
 	@Override
