@@ -13,7 +13,7 @@ public interface Table extends Iterable<Row> {
 	public List<Object> remove(String key);
 
 	public default boolean contains(String key) {
-		throw new UnsupportedOperationException();
+		return get(key) != null;
 	}
 
 	public int degree();

@@ -72,7 +72,16 @@ public class SearchTable implements BoundedTable {
 
 	@Override
 	public List<Object> remove(String key) {
-		throw new UnsupportedOperationException();
+		for (int i = 0; i < size; i++) {
+			if(tableArray[i].getKey().equals(key)) {
+				List<Object> oldFields = tableArray[i].getFields();
+				tableArray[i] = tableArray[size - 1];
+				tableArray[size - 1] = null;
+				size--;
+				return oldFields;
+			}
+		}
+		return null;
 	}
 
 	@Override
