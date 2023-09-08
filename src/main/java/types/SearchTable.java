@@ -11,6 +11,14 @@ public class SearchTable implements BoundedTable {
 	 * TODO: For Module 1, finish this stub.
 	 */
 
+	private Row[] tableArray; // Field 1
+	private String name; // Field 2
+	private List<String> columns; // Field 3
+	private int degree; // Field 4
+	private int size; // Field 5
+	private int capacity; // Field 6
+	private static final int INITIAL_CAPACITY = 16;
+
 	public SearchTable(String name, List<String> columns) {
 		throw new UnsupportedOperationException();
 	}
