@@ -58,13 +58,16 @@ public class SearchTable implements BoundedTable {
 		tableArray[size] = newRow;
 		size++;
 		return null;
-
-
 	}
 
 	@Override
 	public List<Object> get(String key) {
-		throw new UnsupportedOperationException();
+		for(int i = 0; i < size; i++) {
+			if(tableArray[i] != null && key.equals(tableArray[i].getKey())) {
+				return tableArray[i].fields();
+			}
+		}
+		return null;
 	}
 
 	@Override
