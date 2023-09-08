@@ -36,7 +36,30 @@ public class SearchTable implements BoundedTable {
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		throw new UnsupportedOperationException();
+		if(fields.size() != degree) {
+			throw new IllegalArgumentException("Number of fields doesn't match the degree of the table.");
+		}
+
+		Row newRow = new Row(key, fields);
+
+		for (int i = 0; i < size; i++) {
+			if (tableArray[i].getKey().equals(key)) {
+				List<Object> oldFields = tableArray[i].getFields();
+				tableArray[i] = newRow;
+				return oldFields;
+			}
+		}
+
+		if(size == capacity) {
+			capacity *= 2;
+			tableArray = Arrays.copyOf(tableArray, capacity);
+		}
+
+		tableArray[size] = newRow;
+		size++;
+		return null;
+
+
 	}
 
 	@Override
