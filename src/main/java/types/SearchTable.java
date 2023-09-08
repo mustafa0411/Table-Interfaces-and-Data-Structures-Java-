@@ -20,12 +20,14 @@ public class SearchTable implements BoundedTable {
 	private static final int INITIAL_CAPACITY = 16;
 
 	public SearchTable(String name, List<String> columns) {
-		throw new UnsupportedOperationException();
+		this.name = name;
+		this.columns = List.copyOf(columns);
+		this.degree = columns.size();
+		clear();
 	}
 
 	@Override
 	public void clear() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
