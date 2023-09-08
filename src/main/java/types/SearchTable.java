@@ -1,5 +1,6 @@
 package types;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -90,6 +91,6 @@ public class SearchTable implements BoundedTable {
 
 	@Override
 	public String toString() {
-		throw new UnsupportedOperationException();
+		return Arrays.toString(tableArray);
 	}
 }
