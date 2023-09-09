@@ -15,4 +15,11 @@ public record Row(String key, List<Object> fields) {
 	public List<Object> getFields(){
 		return fields;
 	}
+
+	@Override
+	public int hashCode() {
+		int result = key.hashCode();
+		result = 31 * result + fields.hashCode();
+		return result;
+	}
 }
