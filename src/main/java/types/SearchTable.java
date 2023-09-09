@@ -123,7 +123,22 @@ public class SearchTable implements BoundedTable {
 
 	@Override
 	public Iterator<Row> iterator() {
-		throw new UnsupportedOperationException();
+		return new Iterator<Row>() {
+			private int currentIndex = 0;
+
+			@Override
+			public boolean hasNext() {
+				return currentIndex < size;
+			}
+
+			@Override
+			public Row next() {
+				if (!hasNext()) {
+					throw new java.util.NoSuchElementException();
+				}
+				return tableArray[currentIndex++];
+			}
+		};
 	}
 
 	@Override
