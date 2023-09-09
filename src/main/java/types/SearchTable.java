@@ -103,12 +103,16 @@ public class SearchTable implements BoundedTable {
 
 	@Override
 	public int hashCode() {
-		throw new UnsupportedOperationException();
+		return fingerprint;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		throw new UnsupportedOperationException();
+		if (obj instanceof BoundedTable) {
+			BoundedTable otherTable = (BoundedTable) obj;
+			return this.fingerprint == otherTable.hashCode();
+		}
+		return false;
 	}
 
 	@Override
