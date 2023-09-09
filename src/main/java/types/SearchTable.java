@@ -43,11 +43,14 @@ public class SearchTable implements BoundedTable {
 		}
 
 		Row newRow = new Row(key, fields);
+		int newRowHashCode = newRow.hashCode();
 
 		for (int i = 0; i < size; i++) {
 			if (tableArray[i].getKey().equals(key)) {
 				List<Object> oldFields = tableArray[i].getFields();
+				int oldRowHashCode = tableArray[i].hashCode();
 				tableArray[i] = newRow;
+				fingerprint += (newRowHashCode - oldRowHashCode);
 				return oldFields;
 			}
 		}
@@ -59,6 +62,7 @@ public class SearchTable implements BoundedTable {
 
 		tableArray[size] = newRow;
 		size++;
+		fingerprint += newRowHashCode;
 		return null;
 	}
 
