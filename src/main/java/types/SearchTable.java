@@ -43,14 +43,14 @@ public class SearchTable implements BoundedTable {
 		}
 
 		Row newRow = new Row(key, fields);
-		int newRowHashCode = newRow.hashCode();
+		int newRowHashCode = newRow.hashCode(); // Calculate the hash code of the new row
 
 		for (int i = 0; i < size; i++) {
 			if (tableArray[i].getKey().equals(key)) {
 				List<Object> oldFields = tableArray[i].getFields();
-				int oldRowHashCode = tableArray[i].hashCode();
+				int oldRowHashCode = tableArray[i].hashCode(); // Calculate the hash code of the old row
 				tableArray[i] = newRow;
-				fingerprint += (newRowHashCode - oldRowHashCode);
+				fingerprint += (newRowHashCode - oldRowHashCode); // Update the fingerprint
 				return oldFields;
 			}
 		}
@@ -62,7 +62,7 @@ public class SearchTable implements BoundedTable {
 
 		tableArray[size] = newRow;
 		size++;
-		fingerprint += newRowHashCode;
+		fingerprint += newRowHashCode; // Update the fingerprint
 		return null;
 	}
 
@@ -81,9 +81,11 @@ public class SearchTable implements BoundedTable {
 		for (int i = 0; i < size; i++) {
 			if(tableArray[i].getKey().equals(key)) {
 				List<Object> oldFields = tableArray[i].getFields();
+				int removedRowHashCode = tableArray[i].hashCode(); // Calculate the hash code of the removed row
 				tableArray[i] = tableArray[size - 1];
 				tableArray[size - 1] = null;
 				size--;
+				fingerprint -= removedRowHashCode; // Update the fingerprint
 				return oldFields;
 			}
 		}
