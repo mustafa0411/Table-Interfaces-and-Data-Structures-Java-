@@ -41,6 +41,23 @@ public interface Table extends Iterable<Row> {
 	public String toString();
 
 	public default String toTabularView(boolean sorted) {
-		throw new UnsupportedOperationException();
+		// Implement the toTabularView method as described in the prompt
+		// You can use a StringBuilder to build the tabular view
+		StringBuilder view = new StringBuilder();
+
+		// Check the 'sorted' flag and iterate through rows accordingly
+		Iterator<Row> rowIterator = sorted ? sortedIterator() : iterator();
+
+		// ... Implement the tabular view formatting logic here ...
+
+		return view.toString();
+	}
+	default Iterator<Row> sortedIterator() {
+		// Implement a sorted iterator based on your sorting criteria
+		// This method should return an iterator that traverses rows in a sorted order
+		// You can use a sorted collection or custom sorting logic here
+		// ...
+
+		return null; // Replace with your sorted iterator implementation
 	}
 }
