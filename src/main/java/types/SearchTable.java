@@ -18,6 +18,7 @@ public class SearchTable implements BoundedTable {
 	private int degree; // Field 4
 	private int size; // Field 5
 	private int capacity; // Field 6
+	private int fingerprint;
 	private static final int INITIAL_CAPACITY = 16;
 
 	public SearchTable(String name, List<String> columns) {
@@ -32,6 +33,7 @@ public class SearchTable implements BoundedTable {
 		capacity = INITIAL_CAPACITY;
 		tableArray = new Row[capacity];
 		size = 0;
+		fingerprint = 0;
 	}
 
 	@Override
