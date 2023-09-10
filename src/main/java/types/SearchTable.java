@@ -12,6 +12,7 @@ public class SearchTable implements BoundedTable {
 	 * TODO: For Module 1, finish this stub.
 	 */
 
+	// all private fields
 	private Row[] tableArray; // Field 1
 	private String name; // Field 2
 	private List<String> columns; // Field 3
@@ -28,6 +29,9 @@ public class SearchTable implements BoundedTable {
 		clear();
 	}
 
+	/**
+	 * Clears the table by resetting capacity, size, and fingerprint.
+	 */
 	@Override
 	public void clear() {
 		capacity = INITIAL_CAPACITY;
@@ -36,9 +40,17 @@ public class SearchTable implements BoundedTable {
 		fingerprint = 0;
 	}
 
+	/**
+	 * Puts a key-value pair into the table.
+	 *
+	 * @param key    The key for the pair
+	 * @param fields The values associated with the key
+	 * @return The previous values associated with the key, or null if the key was
+	 *         not present
+	 */
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		if(fields.size() != degree - 1) {
+		if (fields.size() != degree - 1) {
 			throw new IllegalArgumentException("Number of fields doesn't match the degree of the table.");
 		}
 
@@ -55,7 +67,7 @@ public class SearchTable implements BoundedTable {
 			}
 		}
 
-		if(size == capacity) {
+		if (size == capacity) {
 			capacity *= 2;
 			tableArray = Arrays.copyOf(tableArray, capacity);
 		}
@@ -66,9 +78,15 @@ public class SearchTable implements BoundedTable {
 		return null;
 	}
 
+	/**
+	 * Gets the values associated with a key.
+	 *
+	 * @param key The key to look up
+	 * @return The values associated with the key, or null if the key is not present
+	 */
 	@Override
 	public List<Object> get(String key) {
-		for(int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			if (tableArray[i].getKey().equals(key)) {
 				return tableArray[i].getFields(); // Found the key, return its fields
 			}
@@ -76,10 +94,17 @@ public class SearchTable implements BoundedTable {
 		return null;
 	}
 
+	/**
+	 * Removes a key-value pair from the table.
+	 *
+	 * @param key The key to remove
+	 * @return The values associated with the key before removal, or null if the key
+	 *         is not present
+	 */
 	@Override
 	public List<Object> remove(String key) {
 		for (int i = 0; i < size; i++) {
-			if(tableArray[i].getKey().equals(key)) {
+			if (tableArray[i].getKey().equals(key)) {
 				List<Object> oldFields = tableArray[i].getFields();
 				int removedRowHashCode = tableArray[i].hashCode(); // Calculate the hash code of the removed row
 				tableArray[i] = tableArray[size - 1];
@@ -92,26 +117,53 @@ public class SearchTable implements BoundedTable {
 		return null;
 	}
 
+	/**
+	 * Returns the degree of the table.
+	 *
+	 * @return The degree of the table
+	 */
 	@Override
 	public int degree() {
 		return degree;
 	}
 
+	/**
+	 * Returns the current size of the table.
+	 *
+	 * @return The current size of the table
+	 */
 	@Override
 	public int size() {
 		return size;
 	}
 
+	/**
+	 * Returns the current capacity of the table.
+	 *
+	 * @return The current capacity of the table
+	 */
 	@Override
 	public int capacity() {
 		return capacity;
 	}
 
+	/**
+	 * Returns the fingerprint value.
+	 *
+	 * @return The fingerprint value
+	 */
 	@Override
 	public int hashCode() {
 		return fingerprint;
 	}
 
+	/**
+	 * Checks if the current table is equal to another BoundedTable based on the
+	 * fingerprint.
+	 *
+	 * @param obj The object to compare to
+	 * @return True if the tables are equal, false otherwise
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof BoundedTable) {
@@ -121,6 +173,11 @@ public class SearchTable implements BoundedTable {
 		return false;
 	}
 
+	/**
+	 * Returns an iterator for iterating over the rows in the table.
+	 *
+	 * @return An iterator for the table
+	 */
 	@Override
 	public Iterator<Row> iterator() {
 		return new Iterator<Row>() {
@@ -141,16 +198,31 @@ public class SearchTable implements BoundedTable {
 		};
 	}
 
+	/**
+	 * Returns the name of the table.
+	 *
+	 * @return The name of the table
+	 */
 	@Override
 	public String name() {
 		return name;
 	}
 
+	/**
+	 * Returns the list of column names in the table.
+	 *
+	 * @return The list of column names
+	 */
 	@Override
 	public List<String> columns() {
 		return columns;
 	}
 
+	/**
+	 * Returns a string representation of the table.
+	 *
+	 * @return A string representation of the table
+	 */
 	@Override
 	public String toString() {
 		return Arrays.toString(tableArray);
