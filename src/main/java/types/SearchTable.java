@@ -177,10 +177,12 @@ public class SearchTable implements BoundedTable {
 	 */
 	@Override
 	public boolean equals(Object obj) {
+		//if another table has the same fingerprint as this table then return true
 		if (obj instanceof BoundedTable) {
 			BoundedTable otherTable = (BoundedTable) obj;
 			return this.fingerprint == otherTable.hashCode();
 		}
+		//unequal to table
 		return false;
 	}
 
