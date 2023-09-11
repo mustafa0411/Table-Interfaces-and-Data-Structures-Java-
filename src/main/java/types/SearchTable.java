@@ -19,8 +19,8 @@ public class SearchTable implements BoundedTable {
 	private int degree; // Field 4
 	private int size; // Field 5
 	private int capacity; // Field 6
-	private int fingerprint;
-	private static final int INITIAL_CAPACITY = 16;
+	private int fingerprint; // Field 7
+	private static final int INITIAL_CAPACITY = 16; // Capacity constant
 
 	public SearchTable(String name, List<String> columns) {
 		this.name = name;
@@ -37,6 +37,7 @@ public class SearchTable implements BoundedTable {
 		capacity = INITIAL_CAPACITY;
 		tableArray = new Row[capacity];
 		size = 0;
+		// Initialize fingerprint field to 0
 		fingerprint = 0;
 	}
 
@@ -50,6 +51,9 @@ public class SearchTable implements BoundedTable {
 	 */
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
+
+		// Degree guard condition to make sure the degrees are the correct size, throws
+		// exception other wise.
 		if (fields.size() != degree - 1) {
 			throw new IllegalArgumentException("Number of fields doesn't match the degree of the table.");
 		}
@@ -57,6 +61,7 @@ public class SearchTable implements BoundedTable {
 		Row newRow = new Row(key, fields);
 		int newRowHashCode = newRow.hashCode(); // Calculate the hash code of the new row
 
+		// linear search the array
 		for (int i = 0; i < size; i++) {
 			if (tableArray[i].getKey().equals(key)) {
 				List<Object> oldFields = tableArray[i].getFields();
@@ -66,7 +71,7 @@ public class SearchTable implements BoundedTable {
 				return oldFields;
 			}
 		}
-
+		// condition to expan array
 		if (size == capacity) {
 			capacity *= 2;
 			tableArray = Arrays.copyOf(tableArray, capacity);
@@ -86,11 +91,14 @@ public class SearchTable implements BoundedTable {
 	 */
 	@Override
 	public List<Object> get(String key) {
+		// linear search the array
 		for (int i = 0; i < size; i++) {
+			// hit
 			if (tableArray[i].getKey().equals(key)) {
 				return tableArray[i].getFields(); // Found the key, return its fields
 			}
 		}
+		// miss
 		return null;
 	}
 
@@ -103,7 +111,9 @@ public class SearchTable implements BoundedTable {
 	 */
 	@Override
 	public List<Object> remove(String key) {
+		// linear search
 		for (int i = 0; i < size; i++) {
+			// condition for hit
 			if (tableArray[i].getKey().equals(key)) {
 				List<Object> oldFields = tableArray[i].getFields();
 				int removedRowHashCode = tableArray[i].hashCode(); // Calculate the hash code of the removed row
@@ -114,6 +124,7 @@ public class SearchTable implements BoundedTable {
 				return oldFields;
 			}
 		}
+		// otherwise return null for miss
 		return null;
 	}
 
