@@ -18,24 +18,6 @@ public record Row(String key, List<Object> fields) {
 	}
 
 	/**
-	 * Gets the key of the row.
-	 *
-	 * @return The key of the row
-	 */
-	public String getKey() {
-		return key;
-	}
-
-	/**
-	 * Gets the list of fields in the row.
-	 *
-	 * @return The list of fields in the row
-	 */
-	public List<Object> getFields() {
-		return fields;
-	}
-
-	/**
 	 * Computes the hash code for the row.
 	 *
 	 * @return The hash code of the row

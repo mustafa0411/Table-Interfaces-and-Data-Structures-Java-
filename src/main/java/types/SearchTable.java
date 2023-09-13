@@ -63,8 +63,8 @@ public class SearchTable implements BoundedTable {
 
 		// linear search the array
 		for (int i = 0; i < size; i++) {
-			if (tableArray[i].getKey().equals(key)) {
-				List<Object> oldFields = tableArray[i].getFields();
+			if (tableArray[i].key().equals(key)) {
+				List<Object> oldFields = tableArray[i].fields();
 				int oldRowHashCode = tableArray[i].hashCode(); // Calculate the hash code of the old row
 				tableArray[i] = newRow;
 				fingerprint += (newRowHashCode - oldRowHashCode); // Update the fingerprint
@@ -94,8 +94,8 @@ public class SearchTable implements BoundedTable {
 		// linear search the array
 		for (int i = 0; i < size; i++) {
 			// hit
-			if (tableArray[i].getKey().equals(key)) {
-				return tableArray[i].getFields(); // Found the key, return its fields
+			if (tableArray[i].key().equals(key)) {
+				return tableArray[i].fields(); // Found the key, return its fields
 			}
 		}
 		// miss
@@ -114,8 +114,8 @@ public class SearchTable implements BoundedTable {
 		// linear search
 		for (int i = 0; i < size; i++) {
 			// condition for hit
-			if (tableArray[i].getKey().equals(key)) {
-				List<Object> oldFields = tableArray[i].getFields();
+			if (tableArray[i].key().equals(key)) {
+				List<Object> oldFields = tableArray[i].fields();
 				int removedRowHashCode = tableArray[i].hashCode(); // Calculate the hash code of the removed row
 				tableArray[i] = tableArray[size - 1];
 				tableArray[size - 1] = null;
