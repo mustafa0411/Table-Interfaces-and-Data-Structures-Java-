@@ -9,7 +9,7 @@ import models.Row;
 
 public class SearchTable implements BoundedTable {
 	/*
-	 * TODO: For Module 1, finish this stub.
+	 * Module 1 Project, SearchTable
 	 */
 
 	// all private fields
