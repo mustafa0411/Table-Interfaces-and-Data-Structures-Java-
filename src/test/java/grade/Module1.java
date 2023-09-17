@@ -62,6 +62,7 @@ final class Module1 extends AbstractModule {
     		"models",
 			"types",
 			"java.lang",
+			"java.util.Collections",
 			"java.util.ImmutableCollections"
 		);
 
