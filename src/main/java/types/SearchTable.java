@@ -239,31 +239,7 @@ public class SearchTable implements BoundedTable {
 	@Override
 	public String toString() {
 
-		StringBuilder sb = new StringBuilder();
-
-		// Table header with cilumn names
-		sb.append("table: ").append(name).append("\n");
-		for (String columnName : columns) {
-			// Format each column name with a minimum width of 12 characters
-			sb.append(String.format("%-12s", columnName));
-		}
-		sb.append("\n");
-
-		// Table data
-		for (int i = 0; i< size; i++) {
-			if(tableArray[i] != null) {
-				// Append the key (first column) with a minimum width of 12 characters
-				sb.append(String.format("%-12s", tableArray[i].key()));
-				List<Object> rowFields = tableArray[i].fields();
-				for (Object field : rowFields) {
-					// Append each field with a minimum width of 12 characters
-					sb.append(String.format("%-12s", field));
-				}
-				sb.append("\n");
-
-			}
-		}
-		return sb.toString();
+		return toTabularView(false);
 	}
 
 }
