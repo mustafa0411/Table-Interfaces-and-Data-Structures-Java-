@@ -28,4 +28,9 @@ public record Row(String key, List<Object> fields) {
 		result = 31 * result + fields.hashCode();
 		return result;
 	}
+
+	public int compareTo(Row other) {
+		return this.key.compareTo(other.key);
+	}
+
 }
