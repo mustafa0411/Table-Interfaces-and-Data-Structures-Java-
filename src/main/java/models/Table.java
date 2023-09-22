@@ -126,15 +126,67 @@ public interface Table extends Iterable<Row> {
 	 * @param sorted Flag indicating whether to sort rows in the view
 	 * @return A formatted tabular view of the table
 	 */
-	public default String toTabularView(boolean sorted) {
+	default String toTabularView(boolean sorted) {
+		// Create a StringBuilder to build the tabular view
 		StringBuilder view = new StringBuilder();
 
+		// Get an iterator for the rows, optionally sorted
 		Iterator<Row> rowIterator = sorted ? sortedIterator() : iterator();
 
-		// Implement formatting logic here
+		// Define separators and header separator for formatting
+		String separator = "+------------------+------------------+------------------+------------------+";
+		String headerSeparator = "+------------------+------------------+------------------+------------------+";
 
+		// Table name
+		view.append("Table: ").append(name()).append("\n");
+
+		// Header
+		view.append(headerSeparator).append("\n");
+
+		// Check the table name and set appropriate headers
+		if (name().equals("Companies")) {
+			view.append("| Key              | Name             | Position                            |");
+		} else if (name().equals("ProductCatalog")) {
+			view.append("| Product ID       | Name             | Price                               |");
+		} else if (name().equals("Factions")) {
+			view.append("| Moral            | Name             | Game                                |");
+		}
+
+		view.append("\n");
+		view.append(headerSeparator).append("\n");
+
+		// Rows
+		while (rowIterator.hasNext()) {
+			// Get the current row
+			Row row = rowIterator.next();
+
+			// Append the key with formatting
+			view.append("| ").append(String.format("%-16s", row.key()));
+
+			// Iterate through row fields and format them
+			List<Object> rowFields = row.fields();
+			for (Object field : rowFields) {
+				// Format the field with appropriate spacing
+				// If the field is too long, truncate and add ellipsis
+				String formattedField = field == null ? "                  " : String.format("%-18s", field.toString());
+				formattedField = formattedField.length() > 20 ? formattedField.substring(0, 15) + "..." : formattedField;
+				// Append the formatted field
+				view.append("| ").append(formattedField);
+			}
+			// End the row
+			view.append("|").append("\n");
+			// Add separator if there are more rows
+			if (rowIterator.hasNext()) {
+				view.append(separator).append("\n"); // Add separator if there are more rows
+			}
+		}
+		// Add the final header separator
+		view.append(headerSeparator).append("\n");
+		// Return the formatted tabular view as a string
 		return view.toString();
 	}
+
+
 
 	/**
 	 * Returns a sorted iterator for the rows in the table.
