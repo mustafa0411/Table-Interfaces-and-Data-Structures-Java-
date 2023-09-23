@@ -28,7 +28,10 @@ public class HashTable implements BoundedTable {
 
 	@Override
 	public void clear() {
-		throw new UnsupportedOperationException();
+		capacity = INITIAL_CAPACITY;
+		table = new Row[capacity];
+		size = 0;
+		fingerprint = 0;
 	}
 
 	private int hashFunction(String key) {
