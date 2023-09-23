@@ -20,7 +20,10 @@ public class HashTable implements BoundedTable {
 	 */
 
 	public HashTable(String name, List<String> columns) {
-		throw new UnsupportedOperationException();
+		this.name = name;
+		this.columns = List.copyOf(columns);
+		this.degree = columns.size();
+		clear();
 	}
 
 	@Override
