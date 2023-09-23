@@ -7,6 +7,14 @@ import models.BoundedTable;
 import models.Row;
 
 public class HashTable implements BoundedTable {
+	private Row[] table;
+	private String name;
+	private List<String> columns;
+	private int degree;
+	private int size;
+	private int capacity;
+	private int fingerprint;
+	private final static int INITIAL_CAPACITY = 997;
 	/*
 	 * TODO: For Modules 2 & 3, finish this stub.
 	 */
