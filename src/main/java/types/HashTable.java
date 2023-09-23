@@ -35,7 +35,15 @@ public class HashTable implements BoundedTable {
 	}
 
 	private int hashFunction(String key) {
-		throw new UnsupportedOperationException();
+		String saltedKey = "salt" + key;
+
+		int hash = 0;
+		for(int i = 0; i < saltedKey.length(); i++) {
+			char c = saltedKey.charAt(i);
+
+			hash = (hash * 31 + c) % capacity;
+		}
+		return Math.floorMod(hash, capacity);
 	}
 
 	@Override
