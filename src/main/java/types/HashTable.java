@@ -75,7 +75,14 @@ public class HashTable implements BoundedTable {
 
 	@Override
 	public boolean equals(Object obj) {
-		throw new UnsupportedOperationException();
+		if (this == obj) {
+			return true;
+		}
+		if(!(obj instanceof HashTable)) {
+			return false;
+		}
+		HashTable otherTable = (HashTable) obj;
+		return this.fingerprint == otherTable.fingerprint;
 	}
 
 	@Override
