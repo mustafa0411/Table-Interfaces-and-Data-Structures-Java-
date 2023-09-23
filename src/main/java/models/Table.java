@@ -145,7 +145,7 @@ public interface Table extends Iterable<Row> {
 
 		// Check the table name and set appropriate headers
 		if (name().equals("Companies")) {
-			view.append("| Key              | Name             | Position                            |");
+			view.append("| Table#             | Name             | Position                            |");
 		} else if (name().equals("ProductCatalog")) {
 			view.append("| Product ID       | Name             | Price                               |");
 		} else if (name().equals("Factions")) {
