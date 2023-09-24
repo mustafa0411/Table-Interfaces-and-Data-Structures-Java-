@@ -78,7 +78,20 @@ public class HashTable implements BoundedTable {
 
 	@Override
 	public List<Object> get(String key) {
-		throw new UnsupportedOperationException();
+		int index = hashFunction(key);
+		int startIndex = index;
+		while(table[index] != null) {
+			if(table[index].key().equals(key)) {
+				return table[index].fields();
+			}
+			index = (index + 1) % capacity;
+
+			if (index == startIndex) {
+				throw new IllegalStateException("Array is Full");
+			}
+		}
+		return null;
+
 	}
 
 	@Override
