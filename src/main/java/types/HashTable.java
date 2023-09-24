@@ -48,7 +48,32 @@ public class HashTable implements BoundedTable {
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		throw new UnsupportedOperationException();
+		if (fields.size() != degree - 1) {
+			throw new IllegalArgumentException("Number of fields doesn't match the degree of the table.");
+		}
+
+		Row newRow = new Row(key, List.copyOf(fields));
+
+		int index = hashFunction(key);
+		int startIndex = index;
+
+		while(table[index] != null) {
+			if(table[index].key().equals(key)) {
+				Row oldRow = table[index];
+				table[index] = newRow;
+				fingerprint += newRow.hashCode() - oldRow.hashCode();
+				return oldRow.fields();
+			}
+			index = (index - 1) % capacity;
+
+			if(index == startIndex) {
+				throw new IllegalStateException("Array is Full.");
+			}
+		}
+		table[index] = newRow;
+		size++;
+		fingerprint += newRow.hashCode();
+		return null;
 	}
 
 	@Override

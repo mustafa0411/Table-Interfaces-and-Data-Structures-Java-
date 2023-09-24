@@ -7,6 +7,11 @@ import java.util.List;
  */
 public record Row(String key, List<Object> fields) {
 
+	public static Row unmodFields(String key, List<Object> fields) {
+		return new Row(key, List.copyOf(fields));
+	}
+
+
 	/**
 	 * Returns a string representation of the row.
 	 *
