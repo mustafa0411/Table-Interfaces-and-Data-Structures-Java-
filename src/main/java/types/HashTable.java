@@ -169,6 +169,6 @@ public class HashTable implements BoundedTable {
 
 	@Override
 	public String toString() {
-		throw new UnsupportedOperationException();
+		return toTabularView(false);
 	}
 }
