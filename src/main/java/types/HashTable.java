@@ -1,5 +1,6 @@
 package types;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -53,7 +54,12 @@ public class HashTable implements BoundedTable {
 			throw new IllegalArgumentException("Number of fields doesn't match the degree of the table.");
 		}
 
-		Row newRow = new Row(key, List.copyOf(fields));
+		List<Object> sanitizedFields = new ArrayList<>(fields.size());
+		for (Object field : fields) {
+			sanitizedFields.add(field != null ? field : null); // Replace null with null or "" for other types
+		}
+
+		Row newRow = new Row(key, sanitizedFields);
 
 		int index = hashFunction(key);
 		int startIndex = index;
