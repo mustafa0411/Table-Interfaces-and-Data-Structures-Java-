@@ -2,6 +2,7 @@ package types;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import models.BoundedTable;
 import models.Row;
@@ -133,7 +134,27 @@ public class HashTable implements BoundedTable {
 
 	@Override
 	public Iterator<Row> iterator() {
-		throw new UnsupportedOperationException();
+		return new Iterator<Row>() {
+			private int currentIndex = 0;
+			private int count = 0;
+
+			@Override
+			public boolean hasNext() {
+				while(currentIndex < capacity && table[currentIndex] == null) {
+					currentIndex++;
+				}
+				return currentIndex < capacity;
+			}
+
+			@Override
+			public Row next() {
+				if(!(hasNext())) {
+					throw new NoSuchElementException();
+				}
+				count++;
+				return table[currentIndex++];
+			}
+		};
 	}
 
 	@Override
