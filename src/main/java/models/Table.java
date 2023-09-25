@@ -3,10 +3,41 @@ package models;
 import java.util.Iterator;
 import java.util.List;
 
+import types.HashTable;
+
 /**
  * An interface representing a table that stores key-value pairs.
  */
 public interface Table extends Iterable<Row> {
+
+	default Table filter(Object target) {
+		if (target == null) {
+			throw new IllegalArgumentException("Target cannot be null");
+		}
+
+		Table partition = new HashTable(name() + "_parition",  columns());
+
+		for (Row row : this) {
+			boolean includeRow = false;
+
+			if(row.key().equals(target) || row.key().toString().equals(target.toString())) {
+				includeRow = true;
+			}
+			else {
+				List<Object> rowFields = row.fields();
+				for (Object field : rowFields) {
+					if (field != null && (field.equals(target)) || field.toString().equals(target.toString())){
+						includeRow = true;
+						break;
+					}
+				}
+			}
+			if (includeRow) {
+				partition.put(row.key(), row.fields());
+			}
+		}
+		return partition;
+	}
 
 	/**
 	 * Clears all entries in the table.
