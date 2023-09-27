@@ -3,6 +3,7 @@ package types;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import models.BoundedTable;
 import models.Row;
@@ -62,7 +63,12 @@ public class HashTable implements BoundedTable {
 			throw new IllegalArgumentException("Number of fields doesn't match the degree of the table.");
 		}
 
-		Row newRow = new Row(key, List.copyOf(fields));
+		List<Object> sanitizedFields = fields.stream()
+				.map(field -> (field == null) ? null : field)
+				.collect(Collectors.toList());
+
+		Row newRow = new Row(key, sanitizedFields);
+
 
 
 		int index = hashFunction(key);
