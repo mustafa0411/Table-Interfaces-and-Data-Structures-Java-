@@ -58,7 +58,7 @@ public class HashTable implements BoundedTable {
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		if (fields.size() != degree - 1) {
+		if (fields == null || fields.size() != degree - 1) {
 			throw new IllegalArgumentException("Number of fields doesn't match the degree of the table.");
 		}
 
