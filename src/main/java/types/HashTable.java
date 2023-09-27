@@ -3,6 +3,7 @@ package types;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import models.BoundedTable;
 import models.Row;
@@ -63,10 +64,10 @@ public class HashTable implements BoundedTable {
 		}
 
 		List<Object> sanitizedFields = fields.stream()
-	            .map(field -> (field == null) ? null : field)
-	            .collect(Collectors.toList());
+				.map(field -> (field == null) ? null : field)
+				.collect(Collectors.toList());
 
-	    Row newRow = new Row(key, sanitizedFields);
+		Row newRow = new Row(key, sanitizedFields);
 
 
 
