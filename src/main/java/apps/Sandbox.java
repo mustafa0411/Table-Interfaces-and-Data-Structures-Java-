@@ -34,36 +34,36 @@ public class Sandbox {
 		// Table 2: Product Catalog
 		HashTable table2 = new HashTable("ProductCatalog", List.of("ProductID", "Name", "Price"));
 
-		table2.put("P001", List.of("RTX 3060", 400.0));
-		table2.put("P002", List.of("Ryzen 5", 250.0));
-		table2.put("P003", List.of("NZXT H510", 90.0));
+		table2.put("GPU", List.of("RTX 3060", 400.0));
+		table2.put("CPU", List.of("Ryzen 5", 250.0));
+		table2.put("Case", List.of("NZXT H510", 90.0));
 
 		System.out.println("\nProduct Catalog Table:");
 		System.out.println(table2.toTabularView(false));
 
 		// Create partitions based on filter targets
 		HashTable highPriceProducts = (HashTable) table2.filter(400.0); // Products with a price above $300
-		HashTable ryzenProducts = (HashTable) table2.filter("Ryzen"); // Products with "Ryzen" in the name
-		HashTable lowPriceProducts = (HashTable) table2.filter("NonExistentProduct"); // Non-existent product
+		HashTable ryzenProducts = (HashTable) table2.filter("CPU"); // Products with "Ryzen" in the name
+		HashTable lowPriceProducts = (HashTable) table2.filter(90.0); // Products with a price less than $100
 
 		// Display partitions
 		System.out.println("\nPartition 4: Products with Price Above $350");
 		System.out.println(highPriceProducts.toTabularView(false));
 
-		System.out.println("\nPartition 5: Products with 'Ryzen' in Name");
+		System.out.println("\nPartition 5: Products with that are CPU");
 		System.out.println(ryzenProducts.toTabularView(false));
 
-		System.out.println("\nPartition 6: Empty Filter Result");
+		System.out.println("\nPartition 6: Products with Price below $100");
 		System.out.println(lowPriceProducts.toTabularView(false));
 
-		// Table 3: Customer Data
+		// Table 3: Factions
 		HashTable table3 = new HashTable("Factions", List.of("Moral", "Name", "Game"));
 
 		table3.put("Evil", List.of("Institute", "Fallout 4"));
 		table3.put("Mixed", List.of("BOS", "Fallout 3"));
 		table3.put("Good", List.of("NCR", "Fallout NV"));
 
-		System.out.println("\nCustomer Data Table:");
+		System.out.println("\nFactions Table:");
 		System.out.println(table3.toTabularView(false));
 
 		// Create partitions based on filter targets

@@ -164,27 +164,16 @@ public interface Table extends Iterable<Row> {
 		// Get an iterator for the rows, optionally sorted
 		Iterator<Row> rowIterator = sorted ? sortedIterator() : iterator();
 
-		// Define separators and header separator for formatting
-		String separator = "+------------------+------------------+------------------+------------------+";
-		String headerSeparator = "+------------------+------------------+------------------+------------------+";
+		// Define separator and table top/bottom for formatting
+		String separator = "+-----------------+-------------------+-------------------+";
+		String tableTop = "+-----------------+-------------------+-------------------+";
+		String tableBottom = "+-----------------+-------------------+-------------------+";
 
 		// Table name
 		view.append("Table: ").append(name()).append("\n");
 
-		// Header
-		view.append(headerSeparator).append("\n");
-
-		// Check the table name and set appropriate headers
-		if (name().equals("Companies")) {
-			view.append("| Table#             | Name             | Position                            |");
-		} else if (name().equals("ProductCatalog")) {
-			view.append("| Product ID       | Name             | Price                               |");
-		} else if (name().equals("Factions")) {
-			view.append("| Moral            | Name             | Game                                |");
-		}
-
-		view.append("\n");
-		view.append(headerSeparator).append("\n");
+		// Add table top
+		view.append(tableTop).append("\n");
 
 		// Rows
 		while (rowIterator.hasNext()) {
@@ -198,7 +187,6 @@ public interface Table extends Iterable<Row> {
 			List<Object> rowFields = row.fields();
 			for (Object field : rowFields) {
 				// Format the field with appropriate spacing
-				// If the field is too long, truncate and add ellipsis
 				String formattedField = field == null ? "                  " : String.format("%-18s", field.toString());
 				formattedField = formattedField.length() > 20 ? formattedField.substring(0, 15) + "..." : formattedField;
 				// Append the formatted field
@@ -211,11 +199,14 @@ public interface Table extends Iterable<Row> {
 				view.append(separator).append("\n"); // Add separator if there are more rows
 			}
 		}
-		// Add the final header separator
-		view.append(headerSeparator).append("\n");
+
+		// Add table bottom
+		view.append(tableBottom).append("\n");
+
 		// Return the formatted tabular view as a string
 		return view.toString();
 	}
+
 
 
 
