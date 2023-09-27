@@ -141,22 +141,29 @@ public class HashTable implements BoundedTable {
 
 			@Override
 			public boolean hasNext() {
-				while(currentIndex < capacity && table[currentIndex] == null) {
+				while (currentIndex < capacity) {
+					if (table[currentIndex] != null) {
+						return true;
+					}
 					currentIndex++;
 				}
-				return currentIndex < capacity;
+				return false;
 			}
 
 			@Override
 			public Row next() {
-				if(!(hasNext())) {
+				if (!hasNext()) {
 					throw new NoSuchElementException();
 				}
 				count++;
+				while (currentIndex < capacity && table[currentIndex] == null) {
+					currentIndex++;
+				}
 				return table[currentIndex++];
 			}
 		};
 	}
+
 
 	@Override
 	public String name() {
