@@ -8,6 +8,10 @@ import java.util.List;
 public record Row(String key, List<Object> fields) {
 
 	public static Row unModFields(String key, List<Object> fields) {
+		if (fields == null) {
+			throw new IllegalArgumentException("Fields cannot be null.");
+		}
+
 		return new Row(key, List.copyOf(fields));
 	}
 
