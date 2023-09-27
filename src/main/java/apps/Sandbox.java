@@ -13,7 +13,7 @@ public class Sandbox {
 		table1.put("201", List.of("Terrasim", "GIS Consultant"));
 		table1.put("144", List.of("M&S", "IT Technician"));
 
-		System.out.println("Employee Information Table:");
+		System.out.println("Employer Information Table:");
 		System.out.println(table1.toTabularView(false));
 
 		// Create partitions based on filter targets
@@ -22,7 +22,7 @@ public class Sandbox {
 		HashTable tableMoreThan140 = (HashTable) table1.filter("M&S"); // Non-existent company
 
 		// Display partitions
-		System.out.println("\nPartition 1: Employees at Leidos");
+		System.out.println("\nPartition 1: Employers at Leidos");
 		System.out.println(leidosEmployees.toTabularView(false));
 
 		System.out.println("\nPartition 2: Consultants in All Companies");
