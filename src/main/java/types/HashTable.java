@@ -38,13 +38,22 @@ public class HashTable implements BoundedTable {
 	private int hashFunction(String key) {
 		String saltedKey = "salt" + key;
 
-		int hash = 0;
-		for(int i = 0; i < saltedKey.length(); i++) {
-			char c = saltedKey.charAt(i);
+		int hash = fnvHash(saltedKey);
 
-			hash = (hash * 31 + c) % capacity;
-		}
 		return Math.floorMod(hash, capacity);
+	}
+
+	private int fnvHash(String str) {
+		final int fnvOffsetBasis = 0x811C9DC5;
+		final int fnvPrime = 0x01000193;
+
+		int hash = fnvOffsetBasis;
+		for(int i =0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			hash ^= c;
+			hash *= fnvPrime;
+		}
+		return hash;
 	}
 
 	@Override
