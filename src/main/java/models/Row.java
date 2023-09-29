@@ -7,11 +7,21 @@ import java.util.List;
  */
 public record Row(String key, List<Object> fields) {
 
+
+	/**
+	 * Creates and returns a new Row object with unmodifiable fields.
+	 *
+	 * @param key The key for the new Row.
+	 * @param fields The list of fields for the new Row.
+	 * @return A new Row with unmodifiable fields.
+	 * @throws IllegalArgumentException if the fields parameter is null.
+	 */
 	public static Row unModFields(String key, List<Object> fields) {
+		// Check if the fields parameter is null and throw an exception if it is.
 		if (fields == null) {
 			throw new IllegalArgumentException("Fields cannot be null.");
 		}
-
+		// Create a new Row object with the specified key and unmodifiable fields.
 		return new Row(key, List.copyOf(fields));
 	}
 
