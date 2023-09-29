@@ -11,32 +11,44 @@ import types.HashTable;
  */
 public interface Table extends Iterable<Row> {
 
+	/**
+	 * Filters rows in the table based on a target value.
+	 *
+	 * @param target The target value used for filtering.
+	 * @return A new table containing rows that match the target value.
+	 * @throws IllegalArgumentException if the target value is null.
+	 */
 	default Table filter(Object target) {
+		// Check if the target value is null and throw an exception if it is.
 		if (target == null) {
 			throw new IllegalArgumentException("Target cannot be null");
 		}
-
+		// Create a new table (partition) to store filtered rows.
 		Table partition = new HashTable(name() + "_parition",  columns());
-
+		// Iterate over each row in the current table.
 		for (Row row : this) {
 			boolean includeRow = false;
-
+			// Check if the key of the row matches the target, or their string representations match.
 			if(row.key().equals(target) || row.key().toString().equals(target.toString())) {
 				includeRow = true;
 			}
 			else {
 				List<Object> rowFields = row.fields();
+				// Iterate over the fields of the row.
 				for (Object field : rowFields) {
+					// Check if the field is not null and matches the target, or their string representations match.
 					if (field != null && (field.equals(target)) || field.toString().equals(target.toString())){
 						includeRow = true;
-						break;
+						break;// Break the loop if a match is found in the fields.
 					}
 				}
 			}
+			// If includeRow is true, add the row to the partition table.
 			if (includeRow) {
 				partition.put(row.key(), row.fields());
 			}
 		}
+		// Return the filtered partition table.
 		return partition;
 	}
 
