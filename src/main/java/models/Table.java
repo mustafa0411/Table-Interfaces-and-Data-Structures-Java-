@@ -229,15 +229,12 @@ public interface Table extends Iterable<Row> {
 		while (rowIterator.hasNext()) {
 			Row row = rowIterator.next();
 
-			// Append the key with formatting
-			view.append("| ").append(String.format("%-" + (columnWidths[0] + 2) + "s |", row.key()));
-
 			// Iterate through row fields and format them
 			List<Object> rowFields = row.fields();
-			for (int i = 0; i < rowFields.size() && i < columns.size() - 1; i++) {
+			for (int i = 0; i < rowFields.size() && i < columns.size(); i++) {
 				Object field = rowFields.get(i);
 				String formattedField = field == null ? "" : field.toString();
-				view.append(String.format(" %-" + (columnWidths[i + 1] + 2) + "s |", formattedField));
+				view.append(String.format(" %-" + (columnWidths[i] + 2) + "s |", formattedField));
 			}
 
 			// End the row
@@ -258,6 +255,7 @@ public interface Table extends Iterable<Row> {
 		// Return the formatted tabular view as a string
 		return view.toString();
 	}
+
 
 
 
