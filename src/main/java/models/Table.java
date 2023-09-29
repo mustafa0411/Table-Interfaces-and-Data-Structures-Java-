@@ -1,5 +1,6 @@
 package models;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -164,48 +165,100 @@ public interface Table extends Iterable<Row> {
 		// Get an iterator for the rows, optionally sorted
 		Iterator<Row> rowIterator = sorted ? sortedIterator() : iterator();
 
-		// Define separator and table top/bottom for formatting
-		String separator = "+-----------------+-------------------+-------------------+";
-		String tableTop = "+-----------------+-------------------+-------------------+";
-		String tableBottom = "+-----------------+-------------------+-------------------+";
+		// Retrieve table name and column names
+		String tableName = name();
+		List<String> columns = columns();
+
+		// Calculate column widths based on column names and data
+		int[] columnWidths = new int[columns.size()];
+		Arrays.fill(columnWidths, 0); // Initialize to zero
+
+		// Calculate column widths based on column names
+		for (int i = 0; i < columns.size(); i++) {
+			columnWidths[i] = Math.max(columnWidths[i], columns.get(i).length());
+		}
+
+		// Calculate column widths based on data
+		while (rowIterator.hasNext()) {
+			Row row = rowIterator.next();
+			List<Object> rowFields = row.fields();
+
+			for (int i = 0; i < rowFields.size() && i < columns.size(); i++) {
+				Object field = rowFields.get(i);
+				if (field != null) {
+					columnWidths[i] = Math.max(columnWidths[i], field.toString().length());
+				}
+			}
+		}
+
+		// Create a format string for column alignment
+		StringBuilder format = new StringBuilder("|");
+		for (int width : columnWidths) {
+			format.append(" %-" + (width + 2) + "s |"); // +2 for extra spacing
+		}
+
+		// Define separator, table top, and table bottom for formatting
+		String separator = "+";
+		String tableTop = "+";
+		String tableBottom = "+";
+
+		// Build separator, table top, and table bottom based on column widths
+		for (int width : columnWidths) {
+			separator += "+" + "-".repeat(width + 2); // +2 for extra spacing
+			tableTop += "+" + "-".repeat(width + 2); // +2 for extra spacing
+			tableBottom += "+" + "-".repeat(width + 2); // +2 for extra spacing
+		}
+		separator += "+";
+		tableTop += "+";
+		tableBottom += "+";
 
 		// Table name
-		view.append("Table: ").append(name()).append("\n");
+		view.append(tableName).append(":\n");
 
 		// Add table top
 		view.append(tableTop).append("\n");
 
+		// Add column headers
+		view.append(String.format(format.toString(), (Object[]) columns.toArray(new String[0]))).append("\n");
+
+		// Add separator
+		view.append(separator).append("\n");
+
 		// Rows
+		rowIterator = sorted ? sortedIterator() : iterator();
 		while (rowIterator.hasNext()) {
-			// Get the current row
 			Row row = rowIterator.next();
 
 			// Append the key with formatting
-			view.append("| ").append(String.format("%-16s", row.key()));
+			view.append("| ").append(String.format("%-" + (columnWidths[0] + 2) + "s |", row.key()));
 
 			// Iterate through row fields and format them
 			List<Object> rowFields = row.fields();
-			for (Object field : rowFields) {
-				// Format the field with appropriate spacing
-				String formattedField = field == null ? "                  " : String.format("%-18s", field.toString());
-				formattedField = formattedField.length() > 20 ? formattedField.substring(0, 15) + "..." : formattedField;
-				// Append the formatted field
-				view.append("| ").append(formattedField);
+			for (int i = 0; i < rowFields.size() && i < columns.size() - 1; i++) {
+				Object field = rowFields.get(i);
+				String formattedField = field == null ? "" : field.toString();
+				view.append(String.format(" %-" + (columnWidths[i + 1] + 2) + "s |", formattedField));
 			}
+
 			// End the row
-			view.append("|").append("\n");
-			// Add separator if there are more rows
+			view.append("\n");
+
+			// Add separator between rows
 			if (rowIterator.hasNext()) {
-				view.append(separator).append("\n"); // Add separator if there are more rows
+				view.append(separator).append("\n");
 			}
 		}
 
 		// Add table bottom
 		view.append(tableBottom).append("\n");
 
+		// Remove the last line separator
+		view.deleteCharAt(view.length() - 1);
+
 		// Return the formatted tabular view as a string
 		return view.toString();
 	}
+
 
 
 
