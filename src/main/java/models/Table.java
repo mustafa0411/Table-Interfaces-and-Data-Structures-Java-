@@ -34,16 +34,13 @@ public interface Table extends Iterable<Row> {
 			}
 			else {
 				List<Object> rowFields = row.fields();
-				// Iterate over the fields of the row.
 				for (Object field : rowFields) {
-					// Check if the field is not null and matches the target, or their string representations match.
 					if (field != null && (field.equals(target)) || field.toString().equals(target.toString())){
 						includeRow = true;
 						break;// Break the loop if a match is found in the fields.
 					}
 				}
 			}
-			// If includeRow is true, add the row to the partition table.
 			if (includeRow) {
 				partition.put(row.key(), row.fields());
 			}
