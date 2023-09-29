@@ -16,10 +16,13 @@ public class HashTable implements BoundedTable {
 	private int capacity;
 	private int fingerprint;
 	private final static int INITIAL_CAPACITY = 997;
-	/*
-	 * TODO: For Modules 2 & 3, finish this stub.
-	 */
 
+	/**
+	 * Constructor to initialize a new HashTable with a given name and columns.
+	 *
+	 * @param name    The name of the table.
+	 * @param columns The list of column names.
+	 */
 	public HashTable(String name, List<String> columns) {
 		this.name = name;
 		this.columns = List.copyOf(columns);
@@ -27,6 +30,9 @@ public class HashTable implements BoundedTable {
 		clear();
 	}
 
+	/**
+	 * Clears the table, resetting it to its initial state.
+	 */
 	@Override
 	public void clear() {
 		capacity = INITIAL_CAPACITY;
@@ -35,6 +41,12 @@ public class HashTable implements BoundedTable {
 		fingerprint = 0;
 	}
 
+	/**
+	 * Computes the hash value for a given key using the FNV-1a hash algorithm.
+	 *
+	 * @param key The key for which to compute the hash.
+	 * @return The computed hash value.
+	 */
 	private int hashFunction(String key) {
 		String saltedKey = "salt" + key;
 
@@ -43,6 +55,12 @@ public class HashTable implements BoundedTable {
 		return Math.floorMod(hash, capacity);
 	}
 
+	/**
+	 * Computes the FNV-1a hash value for a given string.
+	 *
+	 * @param str The input string.
+	 * @return The computed hash value.
+	 */
 	private int fnvHash(String str) {
 		final int fnvOffsetBasis = 0x811C9DC5;
 		final int fnvPrime = 0x01000193;
@@ -56,6 +74,14 @@ public class HashTable implements BoundedTable {
 		return hash;
 	}
 
+	/**
+	 * Inserts a new key-value pair into the table or updates an existing one.
+	 *
+	 * @param key    The key for the pair.
+	 * @param fields The values associated with the key.
+	 * @return The previous values associated with the key, or null if the key was not present.
+	 * @throws IllegalArgumentException if the number of fields doesn't match the degree of the table.
+	 */
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		if (fields == null || fields.size() != degree - 1) {
@@ -86,6 +112,12 @@ public class HashTable implements BoundedTable {
 		return null;
 	}
 
+	/**
+	 * Retrieves the values associated with a given key.
+	 *
+	 * @param key The key to search for.
+	 * @return The values associated with the key, or null if the key was not found.
+	 */
 	@Override
 	public List<Object> get(String key) {
 		int index = hashFunction(key);
@@ -109,26 +141,52 @@ public class HashTable implements BoundedTable {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * Returns the degree of the table.
+	 *
+	 * @return The degree of the table.
+	 */
 	@Override
 	public int degree() {
 		return degree;
 	}
 
+	/**
+	 * Returns the size of the table.
+	 *
+	 * @return The size of the table.
+	 */
 	@Override
 	public int size() {
 		return size;
 	}
 
+	/**
+	 * Returns the capacity of the table.
+	 *
+	 * @return The capacity of the table.
+	 */
 	@Override
 	public int capacity() {
 		return capacity;
 	}
 
+	/**
+	 * Computes the hash code for the table.
+	 *
+	 * @return The hash code of the table.
+	 */
 	@Override
 	public int hashCode() {
 		return fingerprint;
 	}
 
+	/**
+	 * Checks if the table is equal to another object.
+	 *
+	 * @param obj The object to compare to.
+	 * @return True if the table is equal to the object, false otherwise.
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -141,6 +199,11 @@ public class HashTable implements BoundedTable {
 		return this.fingerprint == otherTable.fingerprint;
 	}
 
+	/**
+	 * Returns an iterator for the rows in the table.
+	 *
+	 * @return An iterator for the rows.
+	 */
 	@Override
 	public Iterator<Row> iterator() {
 		return new Iterator<Row>() {
@@ -172,17 +235,31 @@ public class HashTable implements BoundedTable {
 		};
 	}
 
-
+	/**
+	 * Returns the name of the table.
+	 *
+	 * @return The name of the table.
+	 */
 	@Override
 	public String name() {
 		return name;
 	}
 
+	/**
+	 * Returns the columns of the table.
+	 *
+	 * @return The list of column names.
+	 */
 	@Override
 	public List<String> columns() {
 		return columns;
 	}
 
+	/**
+	 * Returns a string representation of the table.
+	 *
+	 * @return A string representation of the table.
+	 */
 	@Override
 	public String toString() {
 		return toTabularView(false);
