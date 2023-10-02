@@ -47,12 +47,12 @@ public class HashTable implements BoundedTable {
 	 * @param key The key for which to compute the hash.
 	 * @return The computed hash value.
 	 */
-	private int hashFunction(String key) {
+	private int hashFunction2(String key) {
 		String saltedKey = "salt" + key;
 
 		int hash = fnvHash(saltedKey);
 
-		return Math.floorMod(hash, capacity);
+		return 1 + (hash % (capacity - 1));
 	}
 
 	/**
