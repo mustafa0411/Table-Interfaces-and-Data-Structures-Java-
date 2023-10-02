@@ -1,5 +1,9 @@
 package types;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -74,6 +78,24 @@ public class HashTable implements BoundedTable {
 		return hash;
 	}
 
+	private int hashFunction1(String key) {
+
+		String salt = "mySalt";
+
+		String saltedKey = salt + key;
+
+		int hashCode;
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hashBytes = digest.digest(saltedKey.getBytes(StandardCharsets.UTF_8));
+			ByteBuffer buffer = ByteBuffer.wrap(hashBytes);
+			hashCode = buffer.getInt();
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException("SHA-256 algorithm not available.");
+		}
+		return Math.floorMod(hashCode, capacity);
+	}
+
 	/**
 	 * Inserts a new key-value pair into the table or updates an existing one.
 	 *
@@ -90,8 +112,8 @@ public class HashTable implements BoundedTable {
 
 		Row newRow = new Row(key, fields);
 
-		int index = hashFunction(key);
-		int startIndex = index;
+		int index = hashFunction1(key);
+		int startIndex = hashFunction2(key);
 
 		while(table[index] != null) {
 			if(table[index].key().equals(key)) {
@@ -120,8 +142,8 @@ public class HashTable implements BoundedTable {
 	 */
 	@Override
 	public List<Object> get(String key) {
-		int index = hashFunction(key);
-		int startIndex = index;
+		int index = hashFunction1(key);
+		int startIndex = hashFunction2(key);
 		while(table[index] != null) {
 			if(table[index].key().equals(key)) {
 				return table[index].fields();
