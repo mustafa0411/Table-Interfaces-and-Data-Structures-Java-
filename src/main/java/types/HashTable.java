@@ -19,7 +19,9 @@ public class HashTable implements BoundedTable {
 	private int size;
 	private int capacity;
 	private int fingerprint;
+	private int contamination;
 	private final static int INITIAL_CAPACITY = 997;
+	private final static Row TOMBSTONE = new Row(null, null);
 
 	/**
 	 * Constructor to initialize a new HashTable with a given name and columns.
