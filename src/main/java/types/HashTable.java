@@ -137,7 +137,7 @@ public class HashTable implements BoundedTable {
 			}
 		}
 
-		if(tombstoneIndex != 1){
+		if(tombstoneIndex != -1){
 			table[tombstoneIndex] = newRow;
 			size++;
 			contamination++;
@@ -275,7 +275,7 @@ public class HashTable implements BoundedTable {
 			@Override
 			public boolean hasNext() {
 				while (currentIndex < capacity) {
-					if (table[currentIndex] != null) {
+					if (table[currentIndex] != null && table[currentIndex] != TOMBSTONE) {
 						return true;
 					}
 					currentIndex++;
@@ -289,7 +289,7 @@ public class HashTable implements BoundedTable {
 					throw new NoSuchElementException();
 				}
 				count++;
-				while (currentIndex < capacity && table[currentIndex] == null) {
+				while (currentIndex < capacity && table[currentIndex] == null || table[currentIndex] == TOMBSTONE) {
 					currentIndex++;
 				}
 				return table[currentIndex++];
