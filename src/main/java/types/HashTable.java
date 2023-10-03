@@ -45,6 +45,7 @@ public class HashTable implements BoundedTable {
 		table = new Row[capacity];
 		size = 0;
 		fingerprint = 0;
+		contamination = 0;
 	}
 
 	/**
@@ -162,7 +163,30 @@ public class HashTable implements BoundedTable {
 
 	@Override
 	public List<Object> remove(String key) {
-		throw new UnsupportedOperationException();
+		int index = hashFunction1(key);
+		int startIndex = hashFunction2(key);
+		int tombstoneIndex = -1;
+
+		while (table[index] != null) {
+			if (table[index] == TOMBSTONE) {
+				if (tombstoneIndex == -1) {
+					tombstoneIndex = index;
+				}else if (table[index].key().equals(key)) {
+					List<Object> oldFields = table[index].fields();
+					table[index] = TOMBSTONE;
+					size--;
+					contamination++;
+					fingerprint -= oldFields.hashCode();
+					return oldFields;
+				}
+				index = (index + 1) % capacity;
+
+				if(index == startIndex) {
+					throw new IllegalStateException("Array is Full");
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
