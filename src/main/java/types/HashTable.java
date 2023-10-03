@@ -117,13 +117,18 @@ public class HashTable implements BoundedTable {
 
 		int index = hashFunction1(key);
 		int startIndex = hashFunction2(key);
+		int tombstoneIndex = -1;
 
 		while(table[index] != null) {
-			if(table[index].key().equals(key)) {
-				Row oldRow = table[index];
+			if(table[index] == TOMBSTONE) {
+				if (tombstoneIndex == -1) {
+					tombstoneIndex = index;
+				}
+			} else if (table[index].key().equals(key)) {
+				List<Object> oldFields = table[index].fields();
 				table[index] = newRow;
-				fingerprint += newRow.hashCode() - oldRow.hashCode();
-				return oldRow.fields();
+				fingerprint += newRow.hashCode() - oldFields.hashCode();
+				return oldFields;
 			}
 			index = (index + 1) % capacity;
 
@@ -131,10 +136,19 @@ public class HashTable implements BoundedTable {
 				throw new IllegalStateException("Array is Full.");
 			}
 		}
-		table[index] = newRow;
-		size++;
-		fingerprint += newRow.hashCode();
-		return null;
+
+		if(tombstoneIndex != 1){
+			table[tombstoneIndex] = newRow;
+			size++;
+			contamination++;
+			return null;
+
+		}else {
+			table[index] = newRow;
+			size++;
+			fingerprint += newRow.hashCode();
+			return null;
+		}
 	}
 
 	/**
@@ -148,7 +162,7 @@ public class HashTable implements BoundedTable {
 		int index = hashFunction1(key);
 		int startIndex = hashFunction2(key);
 		while(table[index] != null) {
-			if(table[index].key().equals(key)) {
+			if(table[index] != TOMBSTONE && table[index].key().equals(key)) {
 				return table[index].fields();
 			}
 			index = (index + 1) % capacity;
