@@ -20,7 +20,8 @@ public class HashTable implements BoundedTable {
 	private int capacity;
 	private int fingerprint;
 	private int contamination;
-	private final static int INITIAL_CAPACITY = 997;
+	private final static int INITIAL_CAPACITY = 41;
+	private static final double LOAD_FACTOR_BOUND = 0.75;
 	private final static Row TOMBSTONE = new Row(null, null);
 
 	/**
