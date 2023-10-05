@@ -49,6 +49,11 @@ public class HashTable implements BoundedTable {
 		contamination = 0;
 	}
 
+	@Override
+	public double loadFactor() {
+		return (double) (size + contamination) / capacity;
+	}
+
 	/**
 	 * Computes the hash value for a given key using the FNV-1a hash algorithm.
 	 *
