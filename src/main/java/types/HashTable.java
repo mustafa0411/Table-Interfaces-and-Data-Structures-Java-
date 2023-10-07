@@ -20,9 +20,9 @@ public class HashTable implements BoundedTable {
 	private int capacity;
 	private int fingerprint;
 	private int contamination;
-	private final static int INITIAL_CAPACITY = 41;
+	private final static int INITIAL_CAPACITY = 997;
+	private static final Row TOMBSTONE = new Row(null, null);
 	private static final double LOAD_FACTOR_BOUND = 0.75;
-	private final static Row TOMBSTONE = new Row(null, null);
 
 	/**
 	 * Constructor to initialize a new HashTable with a given name and columns.
@@ -51,7 +51,44 @@ public class HashTable implements BoundedTable {
 
 	@Override
 	public double loadFactor() {
-		return (double) (size + contamination) / capacity;
+		return (size + contamination) / (double) capacity;
+	}
+
+	private void rehash() {
+		Row[] oldTable = table;
+		int newCapacity = capacity * 2 + 1; // Double the capacity, add 1 so it's odd
+		while (!isPrime(newCapacity)) {
+			newCapacity += 2; // Keep adding 2 until it's prime again
+		}
+
+		table = new Row[newCapacity];
+		size = 0;
+		fingerprint = 0;
+		contamination = 0;
+
+		for (Row row : oldTable) {
+			if (row != null && !row.equals(TOMBSTONE)) {
+				put(row.key(), row.fields());
+			}
+		}
+	}
+
+	private boolean isPrime(int n) {
+		if (n <= 1) {
+			return false;
+		}
+		if (n <= 3) {
+			return true;
+		}
+		if (n % 2 == 0 || n % 3 == 0) {
+			return false;
+		}
+		for (int i = 5; i * i <= n; i += 6) {
+			if (n % i == 0 || n % (i + 2) == 0) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -119,43 +156,47 @@ public class HashTable implements BoundedTable {
 			throw new IllegalArgumentException("Number of fields doesn't match the degree of the table.");
 		}
 
+		if (loadFactor() > LOAD_FACTOR_BOUND) {
+			rehash(); // Rehash if load factor exceeds the bound
+		}
+
 		Row newRow = new Row(key, fields);
 
 		int index = hashFunction1(key);
 		int startIndex = hashFunction2(key);
-		int tombstoneIndex = -1;
+		int trackedTombstoneIndex = -1; // Track tombstone index
 
-		while(table[index] != null) {
-			if(table[index] == TOMBSTONE) {
-				if (tombstoneIndex == -1) {
-					tombstoneIndex = index;
-				}
-			} else if (table[index].key().equals(key)) {
-				List<Object> oldFields = table[index].fields();
+		while (table[index] != null && !table[index].equals(TOMBSTONE)) {
+			if (table[index].key().equals(key)) {
+				Row oldRow = table[index];
 				table[index] = newRow;
-				fingerprint += newRow.hashCode() - oldFields.hashCode();
-				return oldFields;
+				fingerprint += newRow.hashCode() - oldRow.hashCode();
+				return oldRow.fields();
 			}
-			index = (index + 1) % capacity;
+			if (table[index].equals(TOMBSTONE) && trackedTombstoneIndex == -1) {
+				trackedTombstoneIndex = index;
+			}
+			index = (index + startIndex) % capacity;
 
-			if(index == startIndex) {
+			if (index == startIndex) {
 				throw new IllegalStateException("Array is Full.");
 			}
 		}
 
-		if(tombstoneIndex != -1){
-			table[tombstoneIndex] = newRow;
+		if (trackedTombstoneIndex != -1) {
+			table[trackedTombstoneIndex] = newRow;
 			size++;
-			contamination++;
+			contamination--;
+			fingerprint += newRow.hashCode();
 			return null;
-
-		}else {
+		} else {
 			table[index] = newRow;
 			size++;
 			fingerprint += newRow.hashCode();
 			return null;
 		}
 	}
+
 
 	/**
 	 * Retrieves the values associated with a given key.
@@ -167,44 +208,49 @@ public class HashTable implements BoundedTable {
 	public List<Object> get(String key) {
 		int index = hashFunction1(key);
 		int startIndex = hashFunction2(key);
-		while(table[index] != null) {
-			if(table[index] != TOMBSTONE && table[index].key().equals(key)) {
+		while (table[index] != null && !table[index].equals(TOMBSTONE)) {
+			if (table[index].key().equals(key)) {
 				return table[index].fields();
 			}
-			index = (index + 1) % capacity;
+			index = (index + startIndex) % capacity;
 
 			if (index == startIndex) {
 				throw new IllegalStateException("Array is Full");
 			}
 		}
 		return null;
-
 	}
 
 	@Override
 	public List<Object> remove(String key) {
 		int index = hashFunction1(key);
 		int startIndex = hashFunction2(key);
-		int tombstoneIndex = -1;
+		int trackedTombstoneIndex = -1; // Track tombstone index
 
-		while (table[index] != null) {
-			if (table[index] == TOMBSTONE) {
-				if (tombstoneIndex == -1) {
-					tombstoneIndex = index;
-				}else if (table[index].key().equals(key)) {
-					List<Object> oldFields = table[index].fields();
-					table[index] = TOMBSTONE;
-					size--;
-					contamination++;
-					fingerprint -= oldFields.hashCode();
-					return oldFields;
-				}
-				index = (index + 1) % capacity;
-
-				if(index == startIndex) {
-					throw new IllegalStateException("Array is Full");
-				}
+		while (table[index] != null && !table[index].equals(TOMBSTONE)) {
+			if (table[index].key().equals(key)) {
+				Row oldRow = table[index];
+				table[index] = TOMBSTONE;
+				size--;
+				contamination++;
+				fingerprint += TOMBSTONE.hashCode() - oldRow.hashCode();
+				return oldRow.fields();
 			}
+			if (table[index].equals(TOMBSTONE) && trackedTombstoneIndex == -1) {
+				trackedTombstoneIndex = index;
+			}
+			index = (index + startIndex) % capacity;
+
+			if (index == startIndex) {
+				throw new IllegalStateException("Array is Full");
+			}
+		}
+
+		if (trackedTombstoneIndex != -1) {
+			table[trackedTombstoneIndex] = TOMBSTONE;
+			size--;
+			contamination++;
+			fingerprint += TOMBSTONE.hashCode();
 		}
 		return null;
 	}
@@ -276,12 +322,11 @@ public class HashTable implements BoundedTable {
 	public Iterator<Row> iterator() {
 		return new Iterator<Row>() {
 			private int currentIndex = 0;
-			private int count = 0;
 
 			@Override
 			public boolean hasNext() {
 				while (currentIndex < capacity) {
-					if (table[currentIndex] != null && table[currentIndex] != TOMBSTONE) {
+					if (table[currentIndex] != null && !table[currentIndex].equals(TOMBSTONE)) {
 						return true;
 					}
 					currentIndex++;
@@ -294,8 +339,7 @@ public class HashTable implements BoundedTable {
 				if (!hasNext()) {
 					throw new NoSuchElementException();
 				}
-				count++;
-				while (currentIndex < capacity && table[currentIndex] == null || table[currentIndex] == TOMBSTONE) {
+				while (currentIndex < capacity && (table[currentIndex] == null || table[currentIndex].equals(TOMBSTONE))) {
 					currentIndex++;
 				}
 				return table[currentIndex++];
