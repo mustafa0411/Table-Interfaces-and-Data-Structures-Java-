@@ -163,7 +163,7 @@ public class HashTable implements BoundedTable {
 		Row newRow = new Row(key, fields);
 
 		int index = hashFunction1(key);
-		int startIndex = hashFunction2(key);
+		int startIndex = hashFunction2(key) % capacity;
 		int trackedTombstoneIndex = -1; // Track tombstone index
 
 		while (table[index] != null && !table[index].equals(TOMBSTONE)) {
