@@ -55,11 +55,11 @@ public interface Table extends Iterable<Row> {
 
 		Table unionTable = new HashTable(name() + "_union", columns());
 
-		for (Row row: this) {
+		for (Row row : this) {
 			unionTable.put(row.key(), row.fields());
 		}
 
-		for(Row row: this) {
+		for (Row row : this) {
 			unionTable.put(row.key(), row.fields());
 		}
 
@@ -74,7 +74,7 @@ public interface Table extends Iterable<Row> {
 
 		Table intersectionTable = new HashTable(name() + "_intersection", columns());
 
-		for(Row row: this) {
+		for (Row row : this) {
 			String key = row.key();
 			List <Object> fields = row.fields();
 
@@ -84,6 +84,24 @@ public interface Table extends Iterable<Row> {
 		}
 
 		return intersectionTable;
+	}
+
+	default Table minus(Table thatTable) {
+		if (this.degree() != thatTable.degree()) {
+			throw new IllegalArgumentException("Tables have different degrees");
+		}
+
+		Table differenceTable = new HashTable(name() + "difference", columns());
+
+		for (Row row : this) {
+			String key = row.key();
+
+			if(!thatTable.contains(key)) {
+				differenceTable.put(key, row.fields());
+			}
+		}
+
+		return differenceTable;
 	}
 
 
