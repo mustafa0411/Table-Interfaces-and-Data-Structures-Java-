@@ -48,6 +48,26 @@ public interface Table extends Iterable<Row> {
 		return partition;
 	}
 
+	default Table union (Table thatTable) {
+		if (this.degree() != thatTable.degree()) {
+			throw new IllegalArgumentException("Tables have different degrees");
+		}
+
+		Table unionTable = new HashTable(name() + "_union", columns());
+
+		for (Row row: this) {
+			unionTable.put(row.key(), row.fields());
+		}
+
+		for(Row row: this) {
+			unionTable.put(row.key(), row.fields());
+		}
+
+		return unionTable;
+
+	}
+
+
 	/**
 	 * Clears all entries in the table.
 	 */
