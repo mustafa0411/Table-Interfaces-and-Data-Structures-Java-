@@ -48,17 +48,27 @@ public interface Table extends Iterable<Row> {
 		return partition;
 	}
 
+
+	/**
+	 * Performs a union operation with another table.
+	 *
+	 * @param thatTable The table to union with
+	 * @return A new table containing rows from both tables
+	 * @throws IllegalArgumentException if the degrees of the two tables are not equal
+	 */
 	default Table union (Table thatTable) {
 		if (this.degree() != thatTable.degree()) {
 			throw new IllegalArgumentException("Tables have different degrees");
 		}
-
+		// Create a new table to store the union
 		Table unionTable = new HashTable(name() + "_union", columns());
 
+		// Iterate over each row in this table and add it to the unionTable
 		for (Row row : this) {
 			unionTable.put(row.key(), row.fields());
 		}
 
+		// Iterate over each row in that table and add it to the unionTable
 		for (Row row : this) {
 			unionTable.put(row.key(), row.fields());
 		}
@@ -67,17 +77,27 @@ public interface Table extends Iterable<Row> {
 
 	}
 
+	/**
+	 * Performs an intersection operation with another table.
+	 *
+	 * @param thatTable The table to intersect with
+	 * @return A new table containing rows that exist in both tables
+	 * @throws IllegalArgumentException if the degrees of the two tables are not equal
+	 */
 	default Table intersect (Table thatTable) {
 		if (this.degree() != thatTable.degree()) {
 			throw new IllegalArgumentException("Tables have different degrees");
 		}
 
+		// Create a new table to store the intersection
 		Table intersectionTable = new HashTable(name() + "_intersection", columns());
 
+		// Iterate over each row in this table
 		for (Row row : this) {
 			String key = row.key();
 			List <Object> fields = row.fields();
 
+			// Check if the corresponding key exists in that table
 			if(thatTable.contains(key)) {
 				intersectionTable.put(key, fields);
 			}
@@ -86,22 +106,46 @@ public interface Table extends Iterable<Row> {
 		return intersectionTable;
 	}
 
+	/**
+	 * Performs a set difference operation with another table.
+	 *
+	 * @param thatTable The table to subtract from this table
+	 * @return A new table containing rows that exist in this table but not in that table
+	 * @throws IllegalArgumentException if the degrees of the two tables are not equal
+	 */
 	default Table minus(Table thatTable) {
 		if (this.degree() != thatTable.degree()) {
 			throw new IllegalArgumentException("Tables have different degrees");
 		}
 
+		// Create a new table to store the result of the set difference
 		Table differenceTable = new HashTable(name() + "difference", columns());
 
+		// Iterate over each row in this table
 		for (Row row : this) {
 			String key = row.key();
 
+			// Check if the corresponding key does not exist in that table
 			if(!thatTable.contains(key)) {
 				differenceTable.put(key, row.fields());
 			}
 		}
 
 		return differenceTable;
+	}
+	/**
+	 * Keep rows in the table that match the target value.
+	 *
+	 * @param target The target value used for filtering.
+	 * @return A new table containing rows that match the target value.
+	 */
+	default Table keep(Object target) {
+
+		// Filter rows that match the target value
+		Table filteredTable = this.filter(target);
+
+		// Intersect with the filtered partition to keep the common rows
+		return this.intersect(filteredTable);
 	}
 
 
