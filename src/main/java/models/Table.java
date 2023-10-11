@@ -148,6 +148,20 @@ public interface Table extends Iterable<Row> {
 		return this.intersect(filteredTable);
 	}
 
+	/**
+	 * Drop rows in the table that match the target value.
+	 *
+	 * @param target The target value used for filtering.
+	 * @return A new table with rows removed that match the target value.
+	 */
+	default Table drop(Object target) {
+
+		// Filter rows that match the target value
+		Table filteredTable = this.filter(target);
+
+		// Subtract the filtered partition to remove the common rows
+		return this.minus(filteredTable);
+	}
 
 	/**
 	 * Clears all entries in the table.
