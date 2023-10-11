@@ -67,6 +67,25 @@ public interface Table extends Iterable<Row> {
 
 	}
 
+	default Table intersect (Table thatTable) {
+		if (this.degree() != thatTable.degree()) {
+			throw new IllegalArgumentException("Tables have different degrees");
+		}
+
+		Table intersectionTable = new HashTable(name() + "_intersection", columns());
+
+		for(Row row: this) {
+			String key = row.key();
+			List <Object> fields = row.fields();
+
+			if(thatTable.contains(key)) {
+				intersectionTable.put(key, fields);
+			}
+		}
+
+		return intersectionTable;
+	}
+
 
 	/**
 	 * Clears all entries in the table.
