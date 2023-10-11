@@ -102,7 +102,7 @@ public class HashTable implements BoundedTable {
 
 		int hash = fnvHash(saltedKey);
 
-		return 1 + (hash % (capacity - 1));
+		return 1 + (Math.floorMod(hash, capacity - 1));
 	}
 
 	/**
@@ -126,20 +126,18 @@ public class HashTable implements BoundedTable {
 
 	private int hashFunction1(String key) {
 
-		String salt = "mySalt";
-
-		String saltedKey = salt + key;
+		String saltedKey = "yourSaltString" + key; // Use your own salt string
 
 		int hashCode;
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			byte[] hashBytes = digest.digest(saltedKey.getBytes(StandardCharsets.UTF_8));
 			ByteBuffer buffer = ByteBuffer.wrap(hashBytes);
-			hashCode = buffer.getInt();
+			hashCode = Math.floorMod(buffer.getInt(), capacity);
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException("SHA-256 algorithm not available.");
 		}
-		return Math.floorMod(hashCode, capacity);
+		return hashCode;
 	}
 
 	/**
