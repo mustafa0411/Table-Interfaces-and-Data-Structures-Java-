@@ -58,35 +58,29 @@ public class HashTable implements BoundedTable {
 	 */
 	private void rehash() {
 		Row[] oldTable = table; // Step 1: Keep a backup reference to the old array
-		int newCapacity = (int)(capacity * 2.0 + 1.0); // Double the capacity and add 1 (use floating-point arithmetic)
+		int newCapacity = (capacity << 1) + 1; // Double the capacity and add 1 (integer math)
 
 		while (!isPrime(newCapacity)) {
 			newCapacity += 2; // Keep adding 2 until it's prime again
 		}
 
-		Row[] newTable = new Row[newCapacity]; // Step 2: Create a new array with the new capacity
-		int newFingerprint = 0; // New fingerprint for the table
+		// Step 2: Reassign the array field to reference a new array with the new capacity
+		table = new Row[newCapacity];
 
+		// Step 3: Reinitialize the size, fingerprint, and contamination to 0
+		size = 0;
+		fingerprint = 0;
+		contamination = 0;
+
+		// Step 4: Rehash each row from the old array, skipping nulls and tombstones
 		for (Row row : oldTable) {
-			if (row != null && !row.equals(TOMBSTONE)) {
-				int index = hashFunction1(row.key()); // Re-calculate the index for the row
-				int startIndex = hashFunction2(row.key());
-
-				while (newTable[index] != null) {
-					index = (index + startIndex) % newCapacity; // Handle collisions in the new table
-				}
-
-				newTable[index] = row; // Place the row in the new table
-				newFingerprint += row.hashCode();
+			if (row != null && row != TOMBSTONE) {
+				put(row.key(), row.fields()); // Rehash the row into the new array
 			}
 		}
-
-		table = newTable; // Step 2: Reassign the array field to the new array
-		size = size - contamination; // Update the size by removing contamination
-		contamination = 0; // Reset contamination to 0
-		fingerprint = newFingerprint; // Update the fingerprint
-		capacity = newCapacity; // Update the capacity
 	}
+
+
 
 	/**
 	 * Check if a number is prime.
@@ -192,7 +186,7 @@ public class HashTable implements BoundedTable {
 		int trackedTombstoneIndex = -1; // Track tombstone index
 
 		while (table[index] != null) {
-			if (table[index].equals(TOMBSTONE)) {
+			if (table[index] == TOMBSTONE) {
 				if (trackedTombstoneIndex == -1) {
 					trackedTombstoneIndex = index;
 				}
@@ -233,7 +227,7 @@ public class HashTable implements BoundedTable {
 		int startIndex = hashFunction2(key);
 
 		while (table[index] != null) {
-			if (table[index].equals(TOMBSTONE)) {
+			if (table[index] == TOMBSTONE) {
 				// Skip tombstones and continue to the next loop
 				index = (index + startIndex) % capacity;
 
@@ -258,7 +252,7 @@ public class HashTable implements BoundedTable {
 		int startIndex = hashFunction2(key);
 
 		while (table[index] != null) {
-			if (table[index].equals(TOMBSTONE)) {
+			if (table[index] == TOMBSTONE) {
 				// Skip tombstones
 				index = (index + startIndex) % capacity;
 				continue;

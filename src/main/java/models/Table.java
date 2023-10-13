@@ -290,14 +290,14 @@ public interface Table extends Iterable<Row> {
 
 		// Define separator and table top/bottom for formatting
 		String separator = "+-----------------+-------------------+-------------------+";
-		String tableTop = "+-----------------+-------------------+-------------------+";
+		//String tableTop = "+-----------------+-------------------+-------------------+";
 		String tableBottom = "+-----------------+-------------------+-------------------+";
 
 		// Table name
 		view.append("Table: ").append(name()).append("\n");
 
 		// Add table top
-		view.append(tableTop).append("\n");
+		//view.append(tableTop).append("\n");
 
 		if (name().equals("Companies")) {
 			view.append("| Table#          | Name              | Position          |");
