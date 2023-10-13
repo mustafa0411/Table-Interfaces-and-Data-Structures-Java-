@@ -53,7 +53,9 @@ public class HashTable implements BoundedTable {
 	public double loadFactor() {
 		return (size + contamination) / (double) capacity;
 	}
-
+	/**
+	 * Rehash the table by doubling its capacity and finding a new prime capacity.
+	 */
 	private void rehash() {
 		Row[] oldTable = table; // Step 1: Keep a backup reference to the old array
 		int newCapacity = (int)(capacity * 2.0 + 1.0); // Double the capacity and add 1 (use floating-point arithmetic)
@@ -86,9 +88,12 @@ public class HashTable implements BoundedTable {
 		capacity = newCapacity; // Update the capacity
 	}
 
-
-
-
+	/**
+	 * Check if a number is prime.
+	 *
+	 * @param n The number to check for primality.
+	 * @return True if the number is prime, false otherwise.
+	 */
 	private boolean isPrime(int n) {
 		if (n <= 1) {
 			return false;
@@ -108,10 +113,10 @@ public class HashTable implements BoundedTable {
 	}
 
 	/**
-	 * Computes the hash value for a given key using the FNV-1a hash algorithm.
+	 * Computes the secondary hash value for a given key using the FNV-1a hash algorithm.
 	 *
-	 * @param key The key for which to compute the hash.
-	 * @return The computed hash value.
+	 * @param key The key for which to compute the secondary hash.
+	 * @return The computed secondary hash value.
 	 */
 	private int hashFunction2(String key) {
 		String saltedKey = "salt" + key;
@@ -120,6 +125,7 @@ public class HashTable implements BoundedTable {
 
 		return 1 + (Math.floorMod(hash, capacity - 1));
 	}
+
 
 	/**
 	 * Computes the FNV-1a hash value for a given string.
@@ -139,7 +145,12 @@ public class HashTable implements BoundedTable {
 		}
 		return hash;
 	}
-
+	/**
+	 * Computes the primary hash value for a given key using a cryptographic hash function.
+	 *
+	 * @param key The key for which to compute the primary hash.
+	 * @return The computed primary hash value.
+	 */
 	private int hashFunction1(String key) {
 
 		String saltedKey = "yourSaltString" + key; // Use your own salt string
@@ -156,14 +167,6 @@ public class HashTable implements BoundedTable {
 		return hashCode;
 	}
 
-	/**
-	 * Inserts a new key-value pair into the table or updates an existing one.
-	 *
-	 * @param key    The key for the pair.
-	 * @param fields The values associated with the key.
-	 * @return The previous values associated with the key, or null if the key was not present.
-	 * @throws IllegalArgumentException if the number of fields doesn't match the degree of the table.
-	 */
 	/**
 	 * Inserts a new key-value pair into the table or updates an existing one.
 	 *
@@ -243,9 +246,7 @@ public class HashTable implements BoundedTable {
 
 			index = (index + startIndex) % capacity;
 
-			if (index == startIndex) {
-				throw new IllegalStateException("Array is Full");
-			}
+
 		}
 		return null;
 	}
@@ -255,9 +256,14 @@ public class HashTable implements BoundedTable {
 	public List<Object> remove(String key) {
 		int index = hashFunction1(key);
 		int startIndex = hashFunction2(key);
-		int trackedTombstoneIndex = -1; // Track tombstone index
 
-		while (table[index] != null && !table[index].equals(TOMBSTONE)) {
+		while (table[index] != null) {
+			if (table[index].equals(TOMBSTONE)) {
+				// Skip tombstones
+				index = (index + startIndex) % capacity;
+				continue;
+			}
+
 			if (table[index].key().equals(key)) {
 				Row oldRow = table[index];
 				table[index] = TOMBSTONE;
@@ -266,24 +272,12 @@ public class HashTable implements BoundedTable {
 				fingerprint += TOMBSTONE.hashCode() - oldRow.hashCode();
 				return oldRow.fields();
 			}
-			if (table[index].equals(TOMBSTONE) && trackedTombstoneIndex == -1) {
-				trackedTombstoneIndex = index;
-			}
 			index = (index + startIndex) % capacity;
-
-			if (index == startIndex) {
-				throw new IllegalStateException("Array is Full");
-			}
 		}
 
-		if (trackedTombstoneIndex != -1) {
-			table[trackedTombstoneIndex] = TOMBSTONE;
-			size--;
-			contamination++;
-			fingerprint += TOMBSTONE.hashCode();
-		}
 		return null;
 	}
+
 
 	/**
 	 * Returns the degree of the table.
