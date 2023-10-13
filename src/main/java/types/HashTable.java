@@ -344,7 +344,7 @@ public class HashTable implements BoundedTable {
 			@Override
 			public boolean hasNext() {
 				while (currentIndex < capacity) {
-					if (table[currentIndex] != null && table[currentIndex] == TOMBSTONE) {
+					if (table[currentIndex] != null && table[currentIndex] != TOMBSTONE) {
 						return true;
 					}
 					currentIndex++;
