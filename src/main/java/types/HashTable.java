@@ -202,9 +202,6 @@ public class HashTable implements BoundedTable {
 
 			index = (index + startIndex) % capacity;
 
-			if (index == startIndex) {
-				throw new IllegalStateException("Array is Full.");
-			}
 		}
 
 		if (trackedTombstoneIndex != -1) {
@@ -237,9 +234,6 @@ public class HashTable implements BoundedTable {
 				// Skip tombstones and continue to the next loop
 				index = (index + startIndex) % capacity;
 
-				if (index == startIndex) {
-					throw new IllegalStateException("Array is Full");
-				}
 				continue;
 			}
 
