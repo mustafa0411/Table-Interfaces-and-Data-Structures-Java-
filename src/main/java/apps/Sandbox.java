@@ -21,7 +21,6 @@ public class Sandbox {
 		HashTable consultants = (HashTable) table1.filter("Terrasim"); // Consultants in all companies
 		HashTable tableMoreThan140 = (HashTable) table1.filter("M&S"); // Non-existent company
 
-		// Display partitions
 		System.out.println("\nPartition 1: Employers at Leidos");
 		System.out.println(leidosEmployees.toTabularView(false));
 
@@ -46,11 +45,10 @@ public class Sandbox {
 		HashTable ryzenProducts = (HashTable) table2.filter("CPU"); // Products with "Ryzen" in the name
 		HashTable lowPriceProducts = (HashTable) table2.filter(90.0); // Products with a price less than $100
 
-		// Display partitions
 		System.out.println("\nPartition 4: Products with Price Above $350");
 		System.out.println(highPriceProducts.toTabularView(false));
 
-		System.out.println("\nPartition 5: Products with that are CPU");
+		System.out.println("\nPartition 5: Products that are CPUs");
 		System.out.println(ryzenProducts.toTabularView(false));
 
 		System.out.println("\nPartition 6: Products with Price below $100");
@@ -69,9 +67,8 @@ public class Sandbox {
 		// Create partitions based on filter targets
 		HashTable evilFactions = (HashTable) table3.filter("Evil"); // Factions with moral alignment "Evil"
 		HashTable fallout4 = (HashTable) table3.filter("Fallout 3"); // Factions associated with Fallout games
-		HashTable caliAcronym = (HashTable) table3.filter("NCR"); // factions that are called " New California Repbulic"
+		HashTable caliAcronym = (HashTable) table3.filter("NCR"); // Factions that are called "New California Republic"
 
-		// Display partitions
 		System.out.println("\nPartition 7: Factions with Moral Alignment 'Evil'");
 		System.out.println(evilFactions.toTabularView(false));
 
@@ -80,5 +77,30 @@ public class Sandbox {
 
 		System.out.println("\nPartition 9: Factions named the 'New California Republic'");
 		System.out.println(caliAcronym.toTabularView(false));
+
+		// Union Example
+		HashTable unionResult = (HashTable) leidosEmployees.union(consultants);
+		System.out.println("\nUnion of Leidos Employees and Consultants:");
+		System.out.println(unionResult.toTabularView(false));
+
+		// Intersect Example
+		HashTable intersectResult = (HashTable) leidosEmployees.intersect(consultants);
+		System.out.println("\nIntersection of Leidos Employees and Consultants:");
+		System.out.println(intersectResult.toTabularView(false));
+
+		// Minus Example
+		HashTable minusResult = (HashTable) leidosEmployees.minus(consultants);
+		System.out.println("\nDifference (Minus) between Leidos Employees and Consultants:");
+		System.out.println(minusResult.toTabularView(false));
+
+		// Keep Example
+		HashTable keepResult = (HashTable) table1.keep("201");
+		System.out.println("\nKeep Only Row with Table # '201':");
+		System.out.println(keepResult.toTabularView(false));
+
+		// Drop Example
+		HashTable dropResult = (HashTable) table1.drop("162");
+		System.out.println("\nDrop Row with Table # '162':");
+		System.out.println(dropResult.toTabularView(false));
 	}
 }
