@@ -20,7 +20,7 @@ public class HashTable implements BoundedTable {
 	private int capacity;
 	private int fingerprint;
 	private int contamination;
-	private final static int INITIAL_CAPACITY = 23;
+	private final static int INITIAL_CAPACITY = 43;
 	private static final Row TOMBSTONE = new Row(null, null);
 	private static final double LOAD_FACTOR_BOUND = 0.75;
 
@@ -55,23 +55,39 @@ public class HashTable implements BoundedTable {
 	}
 
 	private void rehash() {
-		Row[] oldTable = table;
-		int newCapacity = capacity * 2 + 1; // Double the capacity, add 1 so it's odd
+		Row[] oldTable = table; // Step 1: Keep a backup reference to the old array
+		int newCapacity = (int)(capacity * 2.0 + 1.0); // Double the capacity and add 1 (use floating-point arithmetic)
+
 		while (!isPrime(newCapacity)) {
 			newCapacity += 2; // Keep adding 2 until it's prime again
 		}
 
-		table = new Row[newCapacity];
-		size = 0;
-		fingerprint = 0;
-		contamination = 0;
+		Row[] newTable = new Row[newCapacity]; // Step 2: Create a new array with the new capacity
+		int newFingerprint = 0; // New fingerprint for the table
 
 		for (Row row : oldTable) {
 			if (row != null && !row.equals(TOMBSTONE)) {
-				put(row.key(), row.fields());
+				int index = hashFunction1(row.key()); // Re-calculate the index for the row
+				int startIndex = hashFunction2(row.key());
+
+				while (newTable[index] != null) {
+					index = (index + startIndex) % newCapacity; // Handle collisions in the new table
+				}
+
+				newTable[index] = row; // Place the row in the new table
+				newFingerprint += row.hashCode();
 			}
 		}
+
+		table = newTable; // Step 2: Reassign the array field to the new array
+		size = size - contamination; // Update the size by removing contamination
+		contamination = 0; // Reset contamination to 0
+		fingerprint = newFingerprint; // Update the fingerprint
+		capacity = newCapacity; // Update the capacity
 	}
+
+
+
 
 	private boolean isPrime(int n) {
 		if (n <= 1) {
