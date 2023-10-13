@@ -20,7 +20,7 @@ public class HashTable implements BoundedTable {
 	private int capacity;
 	private int fingerprint;
 	private int contamination;
-	private final static int INITIAL_CAPACITY = 997;
+	private final static int INITIAL_CAPACITY = 23;
 	private static final Row TOMBSTONE = new Row(null, null);
 	private static final double LOAD_FACTOR_BOUND = 0.75;
 
@@ -148,6 +148,14 @@ public class HashTable implements BoundedTable {
 	 * @return The previous values associated with the key, or null if the key was not present.
 	 * @throws IllegalArgumentException if the number of fields doesn't match the degree of the table.
 	 */
+	/**
+	 * Inserts a new key-value pair into the table or updates an existing one.
+	 *
+	 * @param key    The key for the pair.
+	 * @param fields The values associated with the key.
+	 * @return The previous values associated with the key, or null if the key was not present.
+	 * @throws IllegalArgumentException if the number of fields doesn't match the degree of the table.
+	 */
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		if (fields == null || fields.size() != degree - 1) {
@@ -164,16 +172,18 @@ public class HashTable implements BoundedTable {
 		int startIndex = hashFunction2(key);
 		int trackedTombstoneIndex = -1; // Track tombstone index
 
-		while (table[index] != null && !table[index].equals(TOMBSTONE)) {
-			if (table[index].key().equals(key)) {
+		while (table[index] != null) {
+			if (table[index].equals(TOMBSTONE)) {
+				if (trackedTombstoneIndex == -1) {
+					trackedTombstoneIndex = index;
+				}
+			} else if (table[index].key().equals(key)) {
 				Row oldRow = table[index];
 				table[index] = newRow;
 				fingerprint += newRow.hashCode() - oldRow.hashCode();
 				return oldRow.fields();
 			}
-			if (table[index].equals(TOMBSTONE) && trackedTombstoneIndex == -1) {
-				trackedTombstoneIndex = index;
-			}
+
 			index = (index + startIndex) % capacity;
 
 			if (index == startIndex) {
@@ -195,7 +205,6 @@ public class HashTable implements BoundedTable {
 		}
 	}
 
-
 	/**
 	 * Retrieves the values associated with a given key.
 	 *
@@ -206,10 +215,22 @@ public class HashTable implements BoundedTable {
 	public List<Object> get(String key) {
 		int index = hashFunction1(key);
 		int startIndex = hashFunction2(key);
-		while (table[index] != null && !table[index].equals(TOMBSTONE)) {
+
+		while (table[index] != null) {
+			if (table[index].equals(TOMBSTONE)) {
+				// Skip tombstones and continue to the next loop
+				index = (index + startIndex) % capacity;
+
+				if (index == startIndex) {
+					throw new IllegalStateException("Array is Full");
+				}
+				continue;
+			}
+
 			if (table[index].key().equals(key)) {
 				return table[index].fields();
 			}
+
 			index = (index + startIndex) % capacity;
 
 			if (index == startIndex) {
@@ -218,6 +239,7 @@ public class HashTable implements BoundedTable {
 		}
 		return null;
 	}
+
 
 	@Override
 	public List<Object> remove(String key) {

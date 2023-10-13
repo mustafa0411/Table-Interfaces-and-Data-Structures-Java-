@@ -1,5 +1,7 @@
 package models;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -11,18 +13,11 @@ public record Row(String key, List<Object> fields) {
 	/**
 	 * Creates and returns a new Row object with unmodifiable fields.
 	 *
-	 * @param key The key for the new Row.
-	 * @param fields The list of fields for the new Row.
-	 * @return A new Row with unmodifiable fields.
-	 * @throws IllegalArgumentException if the fields parameter is null.
 	 */
-	public static Row unModFields(String key, List<Object> fields) {
-		// Check if the fields parameter is null and throw an exception if it is.
-		if (fields == null) {
-			throw new IllegalArgumentException("Fields cannot be null.");
+	public Row{
+		if(fields != null) {
+			fields = Collections.unmodifiableList(new ArrayList<>(fields));
 		}
-		// Create a new Row object with the specified key and unmodifiable fields.
-		return new Row(key, List.copyOf(fields));
 	}
 
 
@@ -43,8 +38,8 @@ public record Row(String key, List<Object> fields) {
 	 */
 	@Override
 	public int hashCode() {
-		int result = key.hashCode();
-		result = 31 * result + fields.hashCode();
+		int result = (key != null) ? key.hashCode() : 0;
+		result = 31 * result + ((fields != null) ? fields.hashCode() : 0);
 		return result;
 	}
 
