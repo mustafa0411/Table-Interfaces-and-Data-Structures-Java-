@@ -3,6 +3,7 @@ package types;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,12 +22,25 @@ public class CSVTable implements StoredTable {
 		try {
 			Files.createDirectories(BASE_DIR);
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to create base directories.");
+			throw new IllegalArgumentException("Failed to create base directories.");
 		}
 	}
 
 	public CSVTable(String name, List<String> columns) {
 		createBaseDirectories();
+		this.path = BASE_DIR.resolve(name + ".csv");
+
+		if (!Files.exists(path)) {
+			try {
+				Files.createFile(path);
+				List<String> header = new ArrayList<>();
+				header.add(String.join(",", columns));
+				Files.write(path, header);
+
+			}catch(IOException e){
+				throw new IllegalArgumentException("Failed to create the table file.");
+			}
+		}
 	}
 
 	public CSVTable(String name) {
