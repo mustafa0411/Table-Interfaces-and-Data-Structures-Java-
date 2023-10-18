@@ -1,5 +1,8 @@
 package types;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,9 +13,20 @@ public class CSVTable implements StoredTable {
 	/*
 	 * TODO: For Module 4, finish this stub.
 	 */
+	private static final Path BASE_DIR = Path.of("db", "sub", "tables");
+	private Path path;
+
+
+	private void createBaseDirectories() {
+		try {
+			Files.createDirectories(BASE_DIR);
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create base directories.");
+		}
+	}
 
 	public CSVTable(String name, List<String> columns) {
-		throw new UnsupportedOperationException();
+		createBaseDirectories();
 	}
 
 	public CSVTable(String name) {
