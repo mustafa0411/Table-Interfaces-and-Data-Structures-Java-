@@ -108,12 +108,17 @@ public class CSVTable implements StoredTable {
 
 	@Override
 	public String name() {
-		throw new UnsupportedOperationException();
+		return path.getFileName().toString().replace(".csv", "");
 	}
 
 	@Override
 	public List<String> columns() {
-		throw new UnsupportedOperationException();
+		try {
+			List<String> header = Files.readAllLines(path);
+			return List.of(header.get(0).split(","));
+		} catch(IOException e) {
+			throw new IllegalArgumentException("Failed to read columns");
+		}
 	}
 
 	@Override
