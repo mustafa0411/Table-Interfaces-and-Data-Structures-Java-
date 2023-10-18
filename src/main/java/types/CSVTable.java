@@ -83,12 +83,17 @@ public class CSVTable implements StoredTable {
 
 	@Override
 	public int degree() {
-		throw new UnsupportedOperationException();
+		return columns().size();
 	}
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException();
+		try {
+			List<String> records = Files.readAllLines(path);
+			return records.size() - 1;
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Failed to read the size");
+		}
 	}
 
 	@Override
@@ -98,7 +103,11 @@ public class CSVTable implements StoredTable {
 
 	@Override
 	public boolean equals(Object obj) {
-		throw new UnsupportedOperationException();
+		if (obj instanceof StoredTable) {
+			StoredTable other = (StoredTable) obj;
+			return this.name().equals(other.name()) && this.columns().equals(other.columns());
+		}
+		return false;
 	}
 
 	@Override
