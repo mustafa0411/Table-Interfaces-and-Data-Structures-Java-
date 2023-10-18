@@ -56,7 +56,14 @@ public class CSVTable implements StoredTable {
 
 	@Override
 	public void clear() {
-		throw new UnsupportedOperationException();
+		try {
+			List<String> records = Files.readAllLines(path);
+			List<String> newRecords = new ArrayList<>();
+			newRecords.add(records.get(0));
+			Files.write(path, newRecords);
+		}catch(IOException e){
+			throw new IllegalArgumentException("Failed to clear the table");
+		}
 	}
 
 	@Override
