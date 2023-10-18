@@ -43,8 +43,15 @@ public class CSVTable implements StoredTable {
 		}
 	}
 
+
+
 	public CSVTable(String name) {
-		throw new UnsupportedOperationException();
+		createBaseDirectories();
+		this.path = BASE_DIR.resolve(name + ".csv");
+
+		if (!Files.exists(path)) {
+			throw new IllegalArgumentException("Table file does not exist");
+		}
 	}
 
 	@Override
