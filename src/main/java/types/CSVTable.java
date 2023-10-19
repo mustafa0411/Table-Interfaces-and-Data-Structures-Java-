@@ -152,6 +152,16 @@ public class CSVTable implements StoredTable {
 		return joiner.toString();
 	}
 
+	private static Row decodeRow(String record) {
+		String[] fields = record.split(",");
+		Object key = decodeField(fields[0]);
+		List<Object> rowFields = new ArrayList<>();
+		for(int i = 1; i < fields.length; i++) {
+			rowFields.add(decodeField(fields[i]));
+		}
+		return  new Row(key, rowFields);
+	}
+
 	@Override
 	public Iterator<Row> iterator() {
 		throw new UnsupportedOperationException();
