@@ -148,7 +148,37 @@ public class CSVTable implements StoredTable {
 
 	@Override
 	public List<Object> remove(String key) {
-		throw new UnsupportedOperationException();
+		try {
+			List<String> records = Files.readAllLines(path);
+			if (records.size() < 1) {
+				throw new IllegalArgumentException("Header not found.");
+			}
+
+			int index = -1;
+
+			for (int i = 1; i < records.size(); i++) {
+				Row oldRow = decodeRow(records.get(i));
+				if (oldRow.key().equals(key)) {
+					index = i;
+					break;
+				}
+			}
+
+			if (index != -1) {
+				// Remove the old row from its index
+				records.remove(index);
+
+				// Write the modified records to the flat file
+				Files.write(path, records);
+
+				return decodeRow(records.get(index));
+			} else {
+				return null;
+			}
+
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Failed to read/write records");
+		}
 	}
 
 	@Override
