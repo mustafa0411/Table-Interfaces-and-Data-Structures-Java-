@@ -69,7 +69,46 @@ public class CSVTable implements StoredTable {
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		throw new UnsupportedOperationException();
+		try {
+			List<String> records = Files.readAllLines(path);
+			if (records.size() < 1) {
+				throw new IllegalArgumentException("Header not found");
+			}
+
+			String header = records.get(0);
+			String[] headerFields = header.split(",");
+			if (headerFields.length != fields.size() + 1) {
+				throw new IllegalArgumentException("Degree of the row doesn't match the header.");
+			}
+
+			Row newRow = new Row(key, fields);
+			int index = -1;
+
+			for (int i = 1; i < records.size(); i ++) {
+				Row oldRow = decodeRow(records.get(i));
+				if (oldRow.key().equals(key)) {
+					index = i;
+					break;
+				}
+			}
+
+			if (index != -1) {
+				records.remove(index);
+			}
+
+			records.add(1, encodeRow(newRow));
+
+			Files.write(path, records);
+
+			if (index != -1) {
+				return decodeRow(records.get(index));
+			} else {
+				return null;
+			}
+
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Failed to read/write records");
+		}
 	}
 
 	@Override
@@ -99,7 +138,17 @@ public class CSVTable implements StoredTable {
 
 	@Override
 	public int hashCode() {
-		throw new UnsupportedOperationException();
+		int hashCodeSum = 0;
+		try {
+			List<String> records = Files.readAllLines(path);
+			for (int i = 1; i < records.size(); i++) {
+				Row row = decodeRow(records.get(i));
+				hashCodeSum += row.hashCode();
+			}
+		} catch(IOException e){
+			throw new IllegalArgumentException("Failed to read records for hashCode calculation");
+		}
+		return hashCodeSum;
 	}
 
 	@Override
@@ -159,7 +208,7 @@ public class CSVTable implements StoredTable {
 		for(int i = 1; i < fields.length; i++) {
 			rowFields.add(decodeField(fields[i]));
 		}
-		return  new Row(key, rowFields);
+		return  new Row(record, rowFields);
 	}
 
 	@Override
