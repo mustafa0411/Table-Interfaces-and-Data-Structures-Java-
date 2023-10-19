@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringJoiner;
 
 import models.Row;
 import models.StoredTable;
@@ -140,6 +141,15 @@ public class CSVTable implements StoredTable {
 				throw new IllegalArgumentException("Unrecognized field: " + field);
 			}
 		}
+	}
+
+	private static String encodeRow(Row row) {
+		StringJoiner joiner = new StringJoiner(",");
+		joiner.add(encodeField(row.key()));
+		for(Object field : row.fields()) {
+			joiner.add(encodeField(field));
+		}
+		return joiner.toString();
 	}
 
 	@Override
