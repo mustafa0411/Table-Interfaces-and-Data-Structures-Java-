@@ -110,6 +110,18 @@ public class CSVTable implements StoredTable {
 		return false;
 	}
 
+	private static String encodeField(Object obj) {
+		if(obj == null) {
+			return "null";
+		} else if (obj instanceof String) {
+			return "\"" + obj.toString() + "\"";
+		} else if (obj instanceof Boolean || obj instanceof Integer || obj instanceof Double) {
+			return obj.toString();
+		} else {
+			throw new IllegalArgumentException("Unsupported field type: " + obj.getClass().getName());
+		}
+	}
+
 	@Override
 	public Iterator<Row> iterator() {
 		throw new UnsupportedOperationException();
