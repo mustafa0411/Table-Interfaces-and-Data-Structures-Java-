@@ -111,7 +111,7 @@ public class CSVTable implements StoredTable {
 	}
 
 	private static String encodeField(Object obj) {
-		if(obj == null) {
+		if (obj == null) {
 			return "null";
 		} else if (obj instanceof String) {
 			return "\"" + obj.toString() + "\"";
@@ -119,6 +119,26 @@ public class CSVTable implements StoredTable {
 			return obj.toString();
 		} else {
 			throw new IllegalArgumentException("Unsupported field type: " + obj.getClass().getName());
+		}
+	}
+
+	private static Object decodeField(String field) {
+		if (field.equalsIgnoreCase("null")) {
+			return null;
+		} else if (field.startsWith("\"") && field.endsWith("\"")) {
+			return field.substring(1, field.length() - 1);
+		} else if (field.equalsIgnoreCase("true") || field.equalsIgnoreCase("false")) {
+			return Boolean.parseBoolean(field);
+		} else {
+			try {
+				if(field.contains(".")) {
+					return Double.parseDouble(field);
+				} else {
+					return Integer.parseInt(field);
+				}
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("Unrecognized field: " + field);
+			}
 		}
 	}
 
