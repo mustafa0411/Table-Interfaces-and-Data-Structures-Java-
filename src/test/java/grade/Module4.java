@@ -56,9 +56,7 @@ final class Module4 extends AbstractModule {
 		static final List<String> exempt = List.of(
     		"models",
 			"types",
-			"java.nio.file.Path",
-			"java.util.Collections",
-			"java.util.ImmutableCollections"
+			"java.nio.file.Path"
 		);
 
 		@TestFactory
