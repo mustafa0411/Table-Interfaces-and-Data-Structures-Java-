@@ -69,116 +69,20 @@ public class CSVTable implements StoredTable {
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		try {
-			List<String> records = Files.readAllLines(path);
-			if (records.size() < 1) {
-				throw new IllegalArgumentException("Header not found");
-			}
+		return fields;
 
-			String header = records.get(0);
-			String[] headerFields = header.split(",");
-			if (headerFields.length != fields.size() + 1) {
-				throw new IllegalArgumentException("Degree of the row doesn't match the header.");
-			}
-
-			Row newRow = new Row(key, fields);
-			int index = -1;
-
-			for (int i = 1; i < records.size(); i ++) {
-				Row oldRow = decodeRow(records.get(i));
-				if (oldRow.key().equals(key)) {
-					index = i;
-					break;
-				}
-			}
-
-			if (index != -1) {
-				records.remove(index);
-			}
-
-			records.add(1, encodeRow(newRow));
-
-			Files.write(path, records);
-
-			if (index != -1) {
-				return decodeRow(records.get(index));
-			} else {
-				return null;
-			}
-
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Failed to read/write records");
-		}
 	}
 
 	@Override
 	public List<Object> get(String key) {
-		try {
-			List<String> records = Files.readAllLines(path);
-			if (records.size() < 1) {
-				throw new IllegalArgumentException("Header not found.");
-			}
+		return null;
 
-			int index = -1;
-
-			for (int i = 1; i < records.size(); i++) {
-				Row oldRow = decodeRow(records.get(i));
-				if (oldRow.key().equals(key)) {
-					index = i;
-					break;
-				}
-			}
-
-			if (index != -1) {
-				// Remove the old row from its index
-				Row oldRow = decodeRow(records.get(index));
-				records.remove(index);
-				// Prepend the old row
-				records.add(1, encodeRow(oldRow));
-				// Write the modified records to the flat file
-				Files.write(path, records);
-				return decodeRow(records.get(index));
-			} else {
-				return null;
-			}
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Failed to read/write records");
-		}
 	}
 
 	@Override
 	public List<Object> remove(String key) {
-		try {
-			List<String> records = Files.readAllLines(path);
-			if (records.size() < 1) {
-				throw new IllegalArgumentException("Header not found.");
-			}
+		return null;
 
-			int index = -1;
-
-			for (int i = 1; i < records.size(); i++) {
-				Row oldRow = decodeRow(records.get(i));
-				if (oldRow.key().equals(key)) {
-					index = i;
-					break;
-				}
-			}
-
-			if (index != -1) {
-				// Remove the old row from its index
-				records.remove(index);
-
-				// Write the modified records to the flat file
-				Files.write(path, records);
-
-				return decodeRow(records.get(index));
-			} else {
-				return null;
-			}
-
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Failed to read/write records");
-		}
 	}
 
 	@Override
@@ -263,18 +167,30 @@ public class CSVTable implements StoredTable {
 
 	private static Row decodeRow(String record) {
 		String[] fields = record.split(",");
-		Object key = decodeField(fields[0]);
+		String key = (String) decodeField(fields[0]);
 		List<Object> rowFields = new ArrayList<>();
 		for(int i = 1; i < fields.length; i++) {
 			rowFields.add(decodeField(fields[i]));
 		}
-		return  new Row(record, rowFields);
+		return  new Row(key, rowFields);
 	}
 
 	@Override
 	public Iterator<Row> iterator() {
-		throw new UnsupportedOperationException();
+		// Create a list of rows decoded from all records in the flat file, excluding the header.
+		List<Row> rows = new ArrayList<>();
+		try {
+			List<String> records = Files.readAllLines(path);
+			for (int i = 1; i < records.size(); i++) {
+				rows.add(decodeRow(records.get(i)));
+			}
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Failed to read records for iterator");
+		}
+		// Return the iterator for the list of rows
+		return rows.iterator();
 	}
+
 
 	@Override
 	public String name() {
@@ -293,6 +209,32 @@ public class CSVTable implements StoredTable {
 
 	@Override
 	public String toString() {
-		throw new UnsupportedOperationException();
+		return toTabularView(false);
 	}
+
+	public static CSVTable fromText(String name, String text) {
+		// Create the base directories, if needed.
+		try {
+			Files.createDirectories(BASE_DIR);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Failed to create base directories.");
+		}
+
+		// Create a path to a new file by resolving the given name plus the .csv extension relative to the base directories.
+		Path filePath = BASE_DIR.resolve(name + ".csv");
+
+		// If the new file doesn't exist at the resolved path, create it.
+		if (!Files.exists(filePath)) {
+			try {
+				Files.createFile(filePath);
+				Files.write(filePath, text.getBytes());
+			} catch (IOException e) {
+				throw new IllegalArgumentException("Failed to create the table file.");
+			}
+		}
+
+		// Return a new CSV table by calling the 1-ary constructor and passing it the given name.
+		return new CSVTable(name);
+	}
+
 }
