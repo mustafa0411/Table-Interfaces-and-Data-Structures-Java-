@@ -67,10 +67,50 @@ public class CSVTable implements StoredTable {
 		}
 	}
 
+
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		return fields;
-
+		// Read all records (lines) from the flat file into a list of records.
+		List<String> records;
+		try {
+			records = Files.readAllLines(path);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Failed to read records for put operation");
+		}
+		// Check if the degree of the new row matches the number of columns in the header.
+		List<String> headerFields = List.of(records.get(0).split(","));
+		if (headerFields.size() != fields.size() + 1) {
+			throw new IllegalArgumentException("Degree of the new row does not match the header");
+		}
+		// Encode the new row composed of the key and fields.
+		String newRecord = encodeRow(new Row(key, fields));
+		// Search for an old row with the same key (skip the header).
+		for(int i = 1; i < records.size(); i++) {
+			Row oldRow = decodeRow(records.get(i));
+			if (oldRow.key().equals(key)) {
+				// On a hit, remove the old record and prepend the new record.
+				records.remove(i);
+				records.add(1, newRecord);
+				// Write the modified list of records to the flat file.
+				try {
+					Files.write(path, records);
+				} catch (IOException e) {
+					throw new IllegalArgumentException("Failed to write records after put operation");
+				}
+				// Return the old row.
+				return oldRow.fields();
+			}
+		}
+		// On a miss, prepend the new record to the list of records (still after the header).
+		records.add(1, newRecord);
+		// Write the modified list of records to the flat file.
+		try {
+			Files.write(path, records);
+		} catch(IOException e) {
+			throw new IllegalArgumentException("Failed to write records after put operation");
+		}
+		// Return null since there was no old row with the same key.
+		return null;
 	}
 
 	@Override
@@ -79,10 +119,12 @@ public class CSVTable implements StoredTable {
 
 	}
 
+
+
+
 	@Override
 	public List<Object> remove(String key) {
 		return null;
-
 	}
 
 	@Override
