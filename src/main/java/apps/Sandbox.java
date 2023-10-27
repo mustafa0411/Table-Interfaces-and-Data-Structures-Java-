@@ -13,7 +13,7 @@ public class Sandbox {
 		employerTable.put("201", List.of("Terrasim", "GIS Consultant"));
 		employerTable.put("144", List.of("M&S", "IT Technician"));
 
-		// Create Product Catalog CSVTable from Text using fromText method
+		//		 Create Product Catalog CSVTable from Text using fromText method
 		String productCatalogText = "Product,Name,Price\n" +
 				"GPU,RTX 3060,400.0\n" +
 				"CPU,Ryzen 5,250.0\n" +
@@ -21,8 +21,7 @@ public class Sandbox {
 		CSVTable productCatalogTable = CSVTable.fromText("ProductCatalog", productCatalogText);
 
 		// Create a new table using the 1-ary constructor
-		List<String> factionColumns = List.of("Moral", "Name", "Game");
-		CSVTable factionTable = new CSVTable("factionCatalog", factionColumns);
+		CSVTable factionTable = new CSVTable("factionCatalog");
 
 		// Add data to the factionCatalog table
 		factionTable.put("Evil", List.of("Institute", "Fallout 4"));
@@ -34,8 +33,8 @@ public class Sandbox {
 		System.out.println(employerTable.toTabularView(false));
 
 		// Display Product Catalog Table
-		System.out.println("\nProduct Catalog Table:");
-		System.out.println(productCatalogTable.toTabularView(false));
+		//		System.out.println("\nProduct Catalog Table:");
+		//		System.out.println(productCatalogTable.toTabularView(false));
 
 		// Display factionCatalog Table
 		System.out.println("\nfactionCatalog Table:");
