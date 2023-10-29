@@ -243,7 +243,7 @@ abstract class AbstractModule {
 						assertEquals(
 							expected,
 							actual,
-							"Mismatched fields for key %s on hit".formatted(key)
+							"Mismatched fields for key %s on hit (value or type errors likely)".formatted(key)
 						);
 					}
 					else {
@@ -293,7 +293,7 @@ abstract class AbstractModule {
 					assertEquals(
 						expected,
 						actual,
-						"Mismatched fields for key %s on hit".formatted(key)
+						"Mismatched fields for key %s on hit (value or type errors likely)".formatted(key)
 					);
 				}
 				else {
@@ -331,7 +331,7 @@ abstract class AbstractModule {
 					assertEquals(
 						expected,
 						actual,
-						"Mismatched fields for key %s on hit".formatted(key)
+						"Mismatched fields for key %s on hit (value or type errors likely)".formatted(key)
 					);
 				}
 				else {
