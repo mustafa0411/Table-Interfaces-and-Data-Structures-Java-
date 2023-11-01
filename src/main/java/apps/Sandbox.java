@@ -21,6 +21,7 @@ public class Sandbox {
 		CSVTable productCatalogTable = CSVTable.fromText("ProductCatalog", productCatalogText);
 
 		// Create a new table using the 1-ary constructor
+		List<String> factionColumns = List.of("Moral", "Name", "Game");
 		CSVTable factionTable = new CSVTable("factionCatalog");
 
 		// Add data to the factionCatalog table
@@ -33,8 +34,8 @@ public class Sandbox {
 		System.out.println(employerTable.toTabularView(false));
 
 		// Display Product Catalog Table
-		//		System.out.println("\nProduct Catalog Table:");
-		//		System.out.println(productCatalogTable.toTabularView(false));
+		System.out.println("\nProduct Catalog Table:");
+		System.out.println(productCatalogTable.toTabularView(false));
 
 		// Display factionCatalog Table
 		System.out.println("\nfactionCatalog Table:");
