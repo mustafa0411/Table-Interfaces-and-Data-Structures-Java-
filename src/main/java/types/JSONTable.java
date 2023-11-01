@@ -3,6 +3,9 @@ package types;
 import java.util.Iterator;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import models.Row;
 import models.StoredTable;
 
@@ -10,6 +13,11 @@ public class JSONTable implements StoredTable {
 	/*
 	 * TODO: For Module 5, finish this stub.
 	 */
+
+	private static final String BASE_DIR = "db-sub-tables";
+	private final String path;
+	private final ObjectNode tree;
+	private static final ObjectMapper mapper = new ObjectMapper();
 
 	public JSONTable(String name, List<String> columns) {
 		throw new UnsupportedOperationException();
