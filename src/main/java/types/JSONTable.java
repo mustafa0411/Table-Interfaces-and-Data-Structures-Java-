@@ -67,12 +67,17 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public void clear() {
-		throw new UnsupportedOperationException();
+		tree.with("data").removeAll();
+		flush();
 	}
 
 	@Override
 	public void flush() {
-		throw new UnsupportedOperationException();
+		try {
+			mapper.writerWithDefaultPrettyPrinter().writeValue(new File(path), tree);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
