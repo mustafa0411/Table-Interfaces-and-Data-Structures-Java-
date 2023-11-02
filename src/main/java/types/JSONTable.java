@@ -1,5 +1,7 @@
 package types;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -20,7 +22,32 @@ public class JSONTable implements StoredTable {
 	private static final ObjectMapper mapper = new ObjectMapper();
 
 	public JSONTable(String name, List<String> columns) {
-		throw new UnsupportedOperationException();
+		File baseDir = new File(BASE_DIR);
+		if (!baseDir.exists()) {
+			baseDir.mkdirs();
+		}
+
+		this.path = BASE_DIR + File.separator + name + ".json";
+
+		File file = new File(this.path);
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		this.tree = mapper.createObjectNode();
+
+		ObjectNode metadata = tree.putObject("metadata");
+
+		ObjectNode data = tree.putObject("data");
+
+		metadata.putObject("columns", mapper.valueToTree(columns));
+
+		flush();
+
 	}
 
 	public JSONTable(String name) {
