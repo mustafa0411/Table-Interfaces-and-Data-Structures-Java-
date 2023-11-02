@@ -2,6 +2,7 @@ package types;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -97,7 +98,8 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public int degree() {
-		throw new UnsupportedOperationException();
+		List<String> columns = columns();
+		return columns().size();
 	}
 
 	@Override
@@ -122,12 +124,17 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public String name() {
-		throw new UnsupportedOperationException();
+		File file = new File(path);
+		return file.getName().replace(".json", "");
 	}
 
 	@Override
 	public List<String> columns() {
-		throw new UnsupportedOperationException();
+		if (tree.has("metadata") && tree.get("metadata").has("columns")) {
+			return mapper.convertValue(tree.get("metadata").get("columns"), List.class);
+		} else {
+			return new ArrayList<>();
+		}
 	}
 
 	@Override
