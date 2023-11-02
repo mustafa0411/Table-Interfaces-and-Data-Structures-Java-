@@ -104,18 +104,43 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException();
+		if (tree.has("data")){
+			return tree.get("data").size();
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
 	public int hashCode() {
-		throw new UnsupportedOperationException();
+		int hash = 0;
+		if (tree.has("data")) {
+			ObjectNode data = (ObjectNode) tree.get("data");
+			Iterator<String> fieldNames = data.fieldNames();
+			while (fieldNames.hasNext()) {
+				String fieldName = fieldNames.next();
+				hash += data.get(fieldName).hashCode();
+			}
+		}
+		return hash;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		throw new UnsupportedOperationException();
+		if (this == obj) {
+			return true; // It's the same object
+		}
+
+		if (obj == null || getClass() != obj.getClass()) {
+			return false; // It's a different class or null
+		}
+
+		JSONTable otherTable = (JSONTable) obj;
+
+		// Compare the tables based on their names
+		return this.name().equals(otherTable.name());
 	}
+
 
 	@Override
 	public Iterator<Row> iterator() {
