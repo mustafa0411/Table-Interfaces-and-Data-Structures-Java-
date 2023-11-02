@@ -44,14 +44,25 @@ public class JSONTable implements StoredTable {
 
 		ObjectNode data = tree.putObject("data");
 
-		metadata.putObject("columns", mapper.valueToTree(columns));
+		metadata.put("columns", mapper.valueToTree(columns));
 
 		flush();
 
 	}
 
 	public JSONTable(String name) {
-		throw new UnsupportedOperationException();
+		this.path = BASE_DIR + File.separator + name + ".json";
+
+		File file = new File(this.path);
+		if (!file.exists()) {
+			throw new IllegalArgumentException("Table does not exist.");
+		}
+
+		try {
+			this.tree = (ObjectNode) mapper.readTree(file);
+		} catch (IOException e) {
+			throw new IllegalStateException("Invalid JSON data in the file.", e);
+		}
 	}
 
 	@Override
