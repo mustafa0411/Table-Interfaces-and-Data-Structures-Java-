@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import models.Row;
@@ -22,6 +23,7 @@ public class JSONTable implements StoredTable {
 	private final ObjectNode tree;
 	private static final ObjectMapper mapper = new ObjectMapper();
 
+	@SuppressWarnings("deprecation")
 	public JSONTable(String name, List<String> columns) {
 		File baseDir = new File(BASE_DIR);
 		if (!baseDir.exists()) {
@@ -66,6 +68,7 @@ public class JSONTable implements StoredTable {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void clear() {
 		tree.with("data").removeAll();
@@ -144,7 +147,22 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public Iterator<Row> iterator() {
-		throw new UnsupportedOperationException();
+		List<Row> rowList = new ArrayList<>();
+
+		if (tree.has("data")) {
+			ArrayNode data = (ArrayNode) tree.get("data");
+			for (int i = 0; i < data.size(); i++) {
+				ObjectNode property = (ObjectNode) data.get(i);
+
+				// Assuming your JSON structure has a key field and a list of fields
+				String key = property.get("key").asText(); // Adjust this based on your JSON structure
+				List<Object> fields = mapper.convertValue(property.get("fields"), List.class); // Adjust this based on your JSON structure
+
+				Row row = new Row(key, fields);
+				rowList.add(row);
+			}
+		}
+		return rowList.iterator();
 	}
 
 	@Override
@@ -164,6 +182,6 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public String toString() {
-		throw new UnsupportedOperationException();
+		return toTabularView(false);
 	}
 }
