@@ -86,7 +86,33 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		throw new UnsupportedOperationException();
+		List<String> columns = columns();
+		if (columns.size() != fields.size()) {
+			throw new IllegalArgumentException("Degree mismatch.");
+		}
+
+		ObjectNode dataNode = tree.with("data");
+
+		if(dataNode.has(key)) {
+			ObjectNode oldRow = (ObjectNode) dataNode.get(key);
+			List<Object> oldFields = mapper.convertValue(oldRow.get("fields"), List.class);
+
+			dataNode.remove(key);
+
+			ObjectNode newRow = mapper.createObjectNode();
+			newRow.put("key", key);
+			newRow.set("fields", mapper.valueToTree(fields));
+			dataNode.set(key, newRow);
+			flush();
+			return oldFields;
+		} else {
+			ObjectNode newRow = mapper.createObjectNode();
+			newRow.put("key", key);
+			newRow.set("fields", mapper.valueToTree(fields));
+			dataNode.set(key, newRow);
+			flush();
+			return null;
+		}
 	}
 
 	@Override
