@@ -2,5 +2,6 @@
   "metadata" : {
     "columns" : [ "k2", "f2a", "f2b", "f2c" ]
   },
-  "data" : { }
+  "data" : { },
+  "path" : "db-sub-tables\\m5_table1.json"
 }

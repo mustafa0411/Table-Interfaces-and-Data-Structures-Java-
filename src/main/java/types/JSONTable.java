@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -21,7 +21,7 @@ public class JSONTable implements StoredTable {
 	private static final String BASE_DIR = "db-sub-tables";
 	private final String path;
 	private final ObjectNode tree;
-	private static final ObjectMapper mapper = new ObjectMapper();
+	private static final JsonMapper mapper = JsonMapper.builder().build();
 
 	@SuppressWarnings("deprecation")
 	public JSONTable(String name, List<String> columns) {
