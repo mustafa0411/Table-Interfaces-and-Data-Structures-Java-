@@ -129,7 +129,19 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public List<Object> remove(String key) {
-		throw new UnsupportedOperationException();
+		ObjectNode dataNode = tree.with("data");
+
+		if (dataNode.has(key)) {
+			ObjectNode oldRow = (ObjectNode) dataNode.get(key);
+			List<Object> oldFields = mapper.convertValue(oldRow.get("fields"), List.class);
+
+			dataNode.remove(key);
+			flush();
+
+			return oldFields;
+		} else {
+			return null;
+		}
 	}
 
 	@Override
