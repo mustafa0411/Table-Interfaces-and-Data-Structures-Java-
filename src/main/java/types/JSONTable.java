@@ -117,7 +117,14 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public List<Object> get(String key) {
-		throw new UnsupportedOperationException();
+		ObjectNode dataNode = tree.with("data");
+
+		if (dataNode.has(key)) {
+			ObjectNode row = ((ObjectNode) dataNode.get(key));
+			return mapper.convertValue(row.get("fields"), List.class);
+		} else {
+			return null;
+		}
 	}
 
 	@Override
