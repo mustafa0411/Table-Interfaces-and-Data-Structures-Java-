@@ -36,14 +36,10 @@ public class JSONTable implements StoredTable {
 
 	@SuppressWarnings("deprecation")
 	public JSONTable(String name, List<String> columns) {
-		File baseDir = new File(BASE_DIR);
-		if (!baseDir.exists()) {
-			baseDir.mkdirs();
-		}
+		createBaseDirectories();
+		this.path = BASE_DIR.resolve(name + ".json");
+		File file = this.path.toFile();
 
-		this.path = BASE_DIR + File.separator + name + ".json";
-
-		File file = new File(this.path);
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
@@ -53,21 +49,19 @@ public class JSONTable implements StoredTable {
 		}
 
 		this.tree = mapper.createObjectNode();
-
 		ObjectNode metadata = tree.putObject("metadata");
-
 		ObjectNode data = tree.putObject("data");
-
 		metadata.put("columns", mapper.valueToTree(columns));
-
 		flush();
 
 	}
 
 	public JSONTable(String name) {
-		this.path = BASE_DIR + File.separator + name + ".json";
+		createBaseDirectories();
+		this.path = BASE_DIR.resolve(name + ".json");
+		File file = this.path.toFile();
 
-		File file = new File(this.path);
+
 		if (!file.exists()) {
 			throw new IllegalArgumentException("Table does not exist.");
 		}
@@ -89,7 +83,7 @@ public class JSONTable implements StoredTable {
 	@Override
 	public void flush() {
 		try {
-			mapper.writerWithDefaultPrettyPrinter().writeValue(new File(path), tree);
+			mapper.writerWithDefaultPrettyPrinter().writeValue(new File(path.toString()), tree);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -157,7 +151,6 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public int degree() {
-		List<String> columns = columns();
 		return columns().size();
 	}
 
@@ -209,11 +202,8 @@ public class JSONTable implements StoredTable {
 			ArrayNode data = (ArrayNode) tree.get("data");
 			for (int i = 0; i < data.size(); i++) {
 				ObjectNode property = (ObjectNode) data.get(i);
-
-				// Assuming your JSON structure has a key field and a list of fields
-				String key = property.get("key").asText(); // Adjust this based on your JSON structure
-				List<Object> fields = mapper.convertValue(property.get("fields"), List.class); // Adjust this based on your JSON structure
-
+				String key = property.get("key").asText();
+				List<Object> fields = mapper.convertValue(property.get("fields"), List.class);
 				Row row = new Row(key, fields);
 				rowList.add(row);
 			}
