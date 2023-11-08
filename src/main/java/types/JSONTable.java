@@ -189,9 +189,10 @@ public class JSONTable implements StoredTable {
 
 		JSONTable otherTable = (JSONTable) obj;
 
-		// Compare the tables based on their names
-		return this.name().equals(otherTable.name());
+		// Compare the hash codes of the tables
+		return this.hashCode() == otherTable.hashCode();
 	}
+
 
 
 	@Override
