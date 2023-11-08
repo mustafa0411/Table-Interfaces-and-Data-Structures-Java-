@@ -2,6 +2,8 @@ package types;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,10 +20,19 @@ public class JSONTable implements StoredTable {
 	 * TODO: For Module 5, finish this stub.
 	 */
 
-	private static final String BASE_DIR = "db-sub-tables";
-	private final String path;
+	private static final Path BASE_DIR = Path.of("db", "sub", "tables");
+	private final Path path;
 	private final ObjectNode tree;
 	private static final JsonMapper mapper = JsonMapper.builder().build();
+
+	private void createBaseDirectories() {
+		try {
+			Files.createDirectories(BASE_DIR);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Failed to create base directories.");
+		}
+	}
+
 
 	@SuppressWarnings("deprecation")
 	public JSONTable(String name, List<String> columns) {
