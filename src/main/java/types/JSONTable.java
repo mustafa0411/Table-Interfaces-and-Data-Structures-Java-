@@ -213,7 +213,7 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public String name() {
-		File file = new File(path);
+		File file = this.path.toFile();
 		return file.getName().replace(".json", "");
 	}
 
