@@ -8,11 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
 import models.Row;
 import models.StoredTable;
+import models.Table;
 
 public class XMLTable implements StoredTable {
 
@@ -53,17 +56,31 @@ public class XMLTable implements StoredTable {
 	}
 
 	public XMLTable(String name) {
-		throw new UnsupportedOperationException();
+		createBaseDirectories();
+		this.path = BASE_DIR.resolve(name + ".xml");
+
+		if (!path.toFile().exists()) {
+			throw new IllegalStateException("Failed to create the XML file.");
+		}
+
+		try {
+			this.document = new SAXReader().read(path.toFile());
+		} catch (DocumentException e) {
+			throw new IllegalStateException("Invalid XML File", e);
+		}
+
 	}
 
 	@Override
 	public void clear() {
-		throw new UnsupportedOperationException();
+		Element rowsElement = document.getRootElement().element("rows");
+		((Table) rowsElement).clear();
+		flush();
 	}
 
 	@Override
 	public void flush() {
-		throw new UnsupportedOperationException();
+
 	}
 
 	@Override
