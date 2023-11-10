@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -108,12 +109,13 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public int degree() {
-		throw new UnsupportedOperationException();
+		return columns().size();
 	}
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException();
+		Element rowsElement = document.getRootElement().element("rows");
+		return rowsElement.elements("rows").size();
 	}
 
 	@Override
@@ -133,12 +135,17 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public String name() {
-		throw new UnsupportedOperationException();
+		return path.getFileName().toString().replace(".xml", "");
 	}
 
 	@Override
 	public List<String> columns() {
-		throw new UnsupportedOperationException();
+		List<String> columnList = new ArrayList<>();
+		Element columnsElement = document.getRootElement().element("columns");
+		for (Element columnElement : columnsElement.elements("columns")) {
+			columnList.add(columnElement.getText());
+		}
+		return columnList;
 	}
 
 	@Override
