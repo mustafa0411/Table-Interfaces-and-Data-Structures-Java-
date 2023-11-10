@@ -92,7 +92,7 @@ public class JSONTable implements StoredTable {
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		List<String> columns = columns();
-		if (columns.size() != fields.size()) {
+		if (columns.size() != fields.size() + 1) {
 			throw new IllegalArgumentException("Degree mismatch.");
 		}
 

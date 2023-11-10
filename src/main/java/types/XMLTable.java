@@ -1,18 +1,55 @@
 package types;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 
 import models.Row;
 import models.StoredTable;
 
 public class XMLTable implements StoredTable {
-	/*
-	 * TODO: For Module 5, finish this stub.
-	 */
+
+	private static final Path BASE_DIR = FileSystems.getDefault().getPath("db", "sub", "tables");
+	private final Path path;
+	private Document document;
+
+	public void createBaseDirectories(){
+		File baseDirFile = BASE_DIR.toFile();
+		if(!baseDirFile.exists()) {
+			baseDirFile.mkdirs();
+		}
+	}
 
 	public XMLTable(String name, List<String> columns) {
-		throw new UnsupportedOperationException();
+		createBaseDirectories();
+		this.path = BASE_DIR.resolve(name + ".xml");
+
+		if (!path.toFile().exists()) {
+			try {
+				path.toFile().createNewFile();
+			} catch (IOException e) {
+				throw new IllegalStateException("Failed to create the XML file.");
+			}
+		}
+
+		this.document = DocumentHelper.createDocument();
+		Element rootElement = document.addElement("table");
+		Element columnsElement = document.addElement("columns");
+
+		for (String column : columns) {
+			columnsElement.addElement("column").setText(column);
+		}
+
+		rootElement.addElement("rows");
+
+		flush();
 	}
 
 	public XMLTable(String name) {
