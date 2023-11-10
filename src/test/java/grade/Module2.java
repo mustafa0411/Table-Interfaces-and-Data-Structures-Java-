@@ -61,9 +61,10 @@ final class Module2 extends AbstractModule {
 		static final List<String> exempt = List.of(
     		"models",
 			"types",
-			"java.lang",
-			"java.util.Collections",
-			"java.util.ImmutableCollections"
+			"java.lang.String",
+			"java.lang.Number",
+        	"java.lang.Boolean",
+			"java.util.ImmutableCollections$AbstractImmutableCollection"
 		);
 
 		@TestFactory

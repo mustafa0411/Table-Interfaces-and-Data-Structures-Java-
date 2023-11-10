@@ -139,62 +139,54 @@ abstract class AbstractModule {
 		}
 
 		void thenTestForbiddenClasses(Table table, List<String> exempt) {
-			var forbidden = new LinkedHashSet<Class<?>>();
+			var forbidden = new LinkedHashSet<String>();
 
-			Class<?> c = table.getClass();
-			while (c != null)  {
-				var fields = new HashSet<Field>();
-				Collections.addAll(fields, c.getFields());
-				Collections.addAll(fields, c.getDeclaredFields());
+			var fields = new HashSet<Field>();
+			Collections.addAll(fields, table.getClass().getFields());
+			Collections.addAll(fields, table.getClass().getDeclaredFields());
 
-				outer:
-				for (Field f: fields) {
-					try {
-						f.setAccessible(true);
+			testing:
+			for (var field: fields) {
+				field.setAccessible(true);
 
-						var obj = f.get(table);
-						if (obj != null) {
-							var type = obj.getClass();
-
-							while (type.isArray())
-								type = type.getComponentType();
-
-							if (type.isPrimitive() || type.isEnum())
-								continue;
-
-							if (exempt.contains(type.getTypeName()))
-								continue;
-
-							if (exempt.contains(type.getPackage().getName()))
-								continue;
-
-							if (type.getEnclosingClass() != null)
-								if (exempt.contains(type.getEnclosingClass().getName()))
-									continue;
-
-							for (var iface: type.getInterfaces()) {
-								if (exempt.contains(iface.getName()))
-									continue outer;
-							}
-
-							forbidden.add(type);
-						}
-					}
-					catch (Exception e) {
-						continue;
-					}
-					finally {
-						f.setAccessible(false);
-					}
+				Object value;
+				try {
+					value = field.get(table);
+				}
+				catch (IllegalAccessException e) {
+					fail("Unable to access fields to test forbidden classes");
+					continue testing;
 				}
 
-				c = c.getSuperclass();
+				if (value == null)
+					continue testing;
+
+				var type = value.getClass();
+				while (type.isArray())
+					type = type.getComponentType();
+
+				var pname = type.getPackage().getName();
+				for (var ename: exempt) {
+					if (ename.equals(pname))
+						continue testing;
+
+					try {
+						var eclass = Class.forName(ename);
+						if (eclass.isAssignableFrom(type))
+							continue testing;
+					}
+					catch (ClassNotFoundException e) {}
+				}
+
+				forbidden.add(type.getName());
+
+				field.setAccessible(false);
 			}
 
 			if (forbidden.size() == 1)
-				fail("Forbidden class %s in table field".formatted(forbidden));
+				fail("Forbidden type %s in table field".formatted(forbidden.iterator().next()));
 			else if (forbidden.size() > 1)
-				fail("Forbidden classes %s in table fields".formatted(forbidden));
+				fail("Forbidden types %s in table fields".formatted(String.join(", ", forbidden)));
 		}
 
 		DynamicTest testClear() {

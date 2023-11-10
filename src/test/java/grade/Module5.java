@@ -57,8 +57,8 @@ final class Module5 extends AbstractModule {
     		"models",
 			"types",
 			"java.nio.file.Path",
-			"com.fasterxml.jackson.databind.node.ObjectNode",
-			"com.fasterxml.jackson.databind.json.JsonMapper"
+			"com.fasterxml.jackson.core.TreeNode",
+			"com.fasterxml.jackson.core.TreeCodec"
 		);
 
 		@TestFactory
@@ -150,7 +150,7 @@ final class Module5 extends AbstractModule {
     		"models",
 			"types",
 			"java.nio.file.Path",
-			"org.dom4j.tree.DefaultDocument"
+			"org.dom4j.Node"
 		);
 
 		@TestFactory
