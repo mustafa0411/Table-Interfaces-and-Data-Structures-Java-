@@ -1,6 +1,7 @@
 package types;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -12,6 +13,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
 
 import models.Row;
 import models.StoredTable;
@@ -80,7 +82,13 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public void flush() {
-
+		try (FileWriter fileWriter = new FileWriter(path.toFile())){
+			XMLWriter xmlWriter = new XMLWriter(fileWriter);
+			xmlWriter.write(document);
+			xmlWriter.close();
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed to write to the XML file.", e);
+		}
 	}
 
 	@Override

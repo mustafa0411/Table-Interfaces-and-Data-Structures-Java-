@@ -165,18 +165,26 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public int hashCode() {
-		int hash = 0; //hashcode only works for fields, needs to check keys and make the rows out of the keys and fields
-		if (tree.has("data")) {
+		int hashCodeSum = 0;
+
+		if (tree.has("data") && tree.get("data").isObject()) {
 			ObjectNode data = (ObjectNode) tree.get("data");
+
+			// Iterate through each property (row) in the data node
 			Iterator<String> fieldNames = data.fieldNames();
 			while (fieldNames.hasNext()) {
-				String fieldName = fieldNames.next();
-				String keyAndValue = fieldName + ":" + data.get(fieldName).asText();
-				hash += keyAndValue.hashCode();
+				String key = fieldNames.next();
+				ObjectNode row = (ObjectNode) data.get(key);
+				// Update the hash code based on the content of each row
+				hashCodeSum += row.hashCode();
 			}
 		}
-		return hash;
+
+		return hashCodeSum;
 	}
+
+
+
 
 	@Override
 	public boolean equals(Object obj) {
