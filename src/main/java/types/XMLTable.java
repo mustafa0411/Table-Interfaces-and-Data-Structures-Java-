@@ -130,7 +130,16 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public boolean equals(Object obj) {
-		throw new UnsupportedOperationException();
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+
+		XMLTable otherTable = (XMLTable) obj;
+
+		return this.hashCode() == otherTable.hashCode();
 	}
 
 	@Override
