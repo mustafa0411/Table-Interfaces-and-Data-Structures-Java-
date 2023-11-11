@@ -120,7 +120,12 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public int hashCode() {
-		throw new UnsupportedOperationException();
+		int hash = 0;
+		Element rowsElement = document.getRootElement().element("rows");
+		for (Element rowElement : rowsElement.elements("rows")) {
+			hash += rowElement.hashCode();
+		}
+		return hash;
 	}
 
 	@Override
