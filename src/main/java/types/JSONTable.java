@@ -165,25 +165,30 @@ public class JSONTable implements StoredTable {
 
 	@Override
 	public int hashCode() {
-		int hashCodeSum = 0;
+		int hash = 0;
 
 		if (tree.has("data") && tree.get("data").isObject()) {
 			ObjectNode data = (ObjectNode) tree.get("data");
-
-			// Iterate through each property (row) in the data node
 			Iterator<String> fieldNames = data.fieldNames();
+
 			while (fieldNames.hasNext()) {
 				String key = fieldNames.next();
 				ObjectNode row = (ObjectNode) data.get(key);
-				// Update the hash code based on the content of each row
-				hashCodeSum += row.hashCode();
+				hash += hashRow(key, row);
 			}
 		}
-
-		return hashCodeSum;
+		return hash;
 	}
 
+	private int hashRow(String key, ObjectNode row) {
+		int result = (key != null) ? key.hashCode() : 0;
 
+		if (row.has("fields")) {
+			List<Object> fields = mapper.convertValue(row.get("fields"), List.class);
+			result = 31 * result + ((fields != null) ? fields.hashCode() : 0);
+		}
+		return result;
+	}
 
 
 	@Override
