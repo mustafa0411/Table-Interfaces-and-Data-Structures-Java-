@@ -144,7 +144,18 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public Iterator<Row> iterator() {
-		throw new UnsupportedOperationException();
+		List <Row> rowList = new ArrayList<>();
+		Element rowsElement = document.getRootElement().element("rows");
+		for (Element rowElement : rowsElement.elements("rows")) {
+			String key = rowElement.elementText("key");
+			List<Object> fields = new ArrayList<>();
+			for (Element fieldElement : rowElement.element("fields").elements("field")) {
+				fields.add(fieldElement.getText());
+			}
+			Row row = new Row (key, fields);
+			rowList.add(row);
+		}
+		return rowList.iterator();
 	}
 
 	@Override
