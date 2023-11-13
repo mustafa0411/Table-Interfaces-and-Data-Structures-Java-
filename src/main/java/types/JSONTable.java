@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import models.Row;
@@ -213,15 +212,18 @@ public class JSONTable implements StoredTable {
 	public Iterator<Row> iterator() {
 		List<Row> rowList = new ArrayList<>();
 
-		if (tree.has("data")) {
-			ArrayNode data = (ArrayNode) tree.get("data");
-			for (int i = 0; i < data.size(); i++) {
-				ObjectNode property = (ObjectNode) data.get(i);
-				String key = property.get("key").asText();
+		if (tree.has("data") && tree.get("data").isObject()) {
+			ObjectNode data = (ObjectNode) tree.get("data");
+			Iterator<String> fieldNames = data.fieldNames();
+
+			while (fieldNames.hasNext()) {
+				String key = fieldNames.next();
+				ObjectNode property = (ObjectNode) data.get(key);
 				List<Object> fields = mapper.convertValue(property.get("fields"), List.class);
 				Row row = new Row(key, fields);
 				rowList.add(row);
 			}
+
 		}
 		return rowList.iterator();
 	}
