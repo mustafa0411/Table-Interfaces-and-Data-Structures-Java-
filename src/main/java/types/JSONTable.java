@@ -88,6 +88,7 @@ public class JSONTable implements StoredTable {
 	}
 
 
+
 	/**
 	 * Clears all data in the table.
 	 */

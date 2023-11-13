@@ -217,8 +217,6 @@ public class XMLTable implements StoredTable {
 	}
 
 
-
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -275,6 +273,6 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public String toString() {
-		throw new UnsupportedOperationException();
+		return toTabularView(false);
 	}
 }
