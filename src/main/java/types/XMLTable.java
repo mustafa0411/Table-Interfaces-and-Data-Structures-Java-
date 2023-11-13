@@ -162,7 +162,21 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public List<Object> remove(String key) {
-		throw new UnsupportedOperationException();
+		Element rowsElement = document.getRootElement().element("rows");
+
+		for (Element rowElement : rowsElement.elements("row")) {
+			if (rowElement.elementText("key").equals(key)) {
+
+				List<Object> oldFields = new ArrayList<>();
+				for (Element fieldElement : rowElement.element("fields").elements("field")){
+					oldFields.add(fieldElement.getText());
+				}
+				rowsElement.remove(rowElement);
+				flush();
+				return oldFields;
+			}
+		}
+		return null;
 	}
 
 	@Override
