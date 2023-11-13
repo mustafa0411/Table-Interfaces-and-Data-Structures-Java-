@@ -193,15 +193,26 @@ public class XMLTable implements StoredTable {
 	}
 
 
+
 	@Override
 	public int hashCode() {
 		int hash = 0;
 		Element rowsElement = document.getRootElement().element("rows");
-		for (Element rowElement : rowsElement.elements("rows")) {
-			hash += rowElement.hashCode();
+
+		for (Element rowElement : rowsElement.elements("row")) {
+			// Incorporate the hash code of each row's key
+			hash += rowElement.elementText("key").hashCode();
+
+			// Incorporate the hash code of each field within the row
+			for (Element fieldElement : rowElement.element("fields").elements("field")) {
+				hash += fieldElement.getText().hashCode();
+			}
 		}
+
 		return hash;
 	}
+
+
 
 	@Override
 	public boolean equals(Object obj) {
