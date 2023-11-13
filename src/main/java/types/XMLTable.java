@@ -145,7 +145,19 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public List<Object> get(String key) {
-		throw new UnsupportedOperationException();
+		Element rowsElement = document.getRootElement().element("rows");
+
+		for (Element rowElement : rowsElement.elements("row")) {
+			if (rowElement.elementText("key").equals(key)) {
+
+				List<Object> fields = new ArrayList<>();
+				for (Element fieldElement : rowElement.element("fields").elements("field")){
+					fields.add(fieldElement.getText());
+				}
+				return fields;
+			}
+		}
+		return null;
 	}
 
 	@Override
