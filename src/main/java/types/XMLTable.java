@@ -45,29 +45,27 @@ public class XMLTable implements StoredTable {
 			}
 		}
 
-		if (path.toFile().length() == 0) {
+		try {
+			if (path.toFile().length() == 0) {
+				this.document = DocumentHelper.createDocument();
+				Element rootElement = document.addElement("table");
 
+				Element columnsElement = rootElement.addElement("columns"); // Add columns under root
+				for (String column : columns) {
+					columnsElement.addElement("column").setText(column);
+				}
 
-			this.document = DocumentHelper.createDocument();
-			Element rootElement = document.addElement("table");
-			Element columnsElement = document.addElement("columns");
+				rootElement.addElement("rows");
 
-			for (String column : columns) {
-				columnsElement.addElement("column").setText(column);
-			}
-
-			rootElement.addElement("rows");
-
-			flush();
-		} else {
-			try {
+				flush();
+			} else {
 				this.document = new SAXReader().read(path.toFile());
-			} catch (DocumentException e) {
-				throw new IllegalStateException("Invalid XML File", e);
 			}
+		} catch (DocumentException e) {
+			throw new IllegalStateException("Invalid XML File", e);
 		}
-
 	}
+
 
 	public XMLTable(String name) {
 		createBaseDirectories();
