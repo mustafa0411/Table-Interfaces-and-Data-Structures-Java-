@@ -104,9 +104,11 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		if (degree() != fields.size()) {
-			throw new IllegalArgumentException("Degree mismatch");
+		List<String> columns = columns();
+		if (columns.size() != fields.size() + 1) {
+			throw new IllegalArgumentException("Degree mismatch.");
 		}
+
 
 		Element rowsElement = document. getRootElement().element("rows");
 
@@ -187,8 +189,9 @@ public class XMLTable implements StoredTable {
 	@Override
 	public int size() {
 		Element rowsElement = document.getRootElement().element("rows");
-		return rowsElement.elements("rows").size();
+		return rowsElement.elements("row").size();  // Count the number of 'row' elements
 	}
+
 
 	@Override
 	public int hashCode() {
