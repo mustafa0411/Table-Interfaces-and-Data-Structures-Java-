@@ -15,15 +15,18 @@ import models.Row;
 import models.StoredTable;
 
 public class JSONTable implements StoredTable {
-	/*
-	 * TODO: For Module 5, finish this stub.
-	 */
+
+	//Required private fields
 
 	private static final Path BASE_DIR = Path.of("db", "sub", "tables");
 	private final Path path;
 	private final ObjectNode tree;
 	private static final JsonMapper mapper = JsonMapper.builder().build();
 
+
+	/**
+	 * Creates necessary directories for the database files.
+	 */
 	private void createBaseDirectories() {
 		try {
 			Files.createDirectories(BASE_DIR);
@@ -33,6 +36,12 @@ public class JSONTable implements StoredTable {
 	}
 
 
+	/**
+	 * Constructs a JSONTable with the given name and columns.
+	 *
+	 * @param name     The name of the table.
+	 * @param columns  List of column names.
+	 */
 	@SuppressWarnings("deprecation")
 	public JSONTable(String name, List<String> columns) {
 		createBaseDirectories();
@@ -55,6 +64,12 @@ public class JSONTable implements StoredTable {
 
 	}
 
+
+	/**
+	 * Constructs a JSONTable with the given name.
+	 *
+	 * @param name  The name of the table.
+	 */
 	public JSONTable(String name) {
 		createBaseDirectories();
 		this.path = BASE_DIR.resolve(name + ".json");
@@ -72,6 +87,10 @@ public class JSONTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Clears all data in the table.
+	 */
 	@SuppressWarnings("deprecation")
 	@Override
 	public void clear() {
@@ -79,6 +98,10 @@ public class JSONTable implements StoredTable {
 		flush();
 	}
 
+
+	/**
+	 * Writes the current state of the table to a JSON file.
+	 */
 	@Override
 	public void flush() {
 		try {
@@ -88,6 +111,14 @@ public class JSONTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Inserts or updates a row in the table.
+	 *
+	 * @param key     The identifier of the row.
+	 * @param fields  List of field values.
+	 * @return        Previous values if the row was updated, else null.
+	 */
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		List<String> columns = columns();
@@ -119,6 +150,13 @@ public class JSONTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Retrieves the fields of a row using its key.
+	 *
+	 * @param key  The identifier of the row.
+	 * @return     List of field values, or null if the row doesn't exist.
+	 */
 	@Override
 	public List<Object> get(String key) {
 		ObjectNode dataNode = tree.with("data");
@@ -131,6 +169,13 @@ public class JSONTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Removes a row from the table using its key.
+	 *
+	 * @param key  The identifier of the row to be removed.
+	 * @return     List of removed field values, or null if the row doesn't exist.
+	 */
 	@Override
 	public List<Object> remove(String key) {
 		ObjectNode dataNode = tree.with("data");
@@ -148,11 +193,23 @@ public class JSONTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Returns the number of columns in the table.
+	 *
+	 * @return The number of columns.
+	 */
 	@Override
 	public int degree() {
 		return columns().size();
 	}
 
+
+	/**
+	 * Returns the number of rows in the table.
+	 *
+	 * @return The number of rows.
+	 */
 	@Override
 	public int size() {
 		if (tree.has("data")){
@@ -162,6 +219,12 @@ public class JSONTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Generates a hash code for the table.
+	 *
+	 * @return The hash code for the table.
+	 */
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -179,6 +242,14 @@ public class JSONTable implements StoredTable {
 		return hash;
 	}
 
+
+	/**
+	 * Generates a hash code for a row.
+	 *
+	 * @param key  The identifier of the row.
+	 * @param row  The row object.
+	 * @return     The hash code for the row.
+	 */
 	private int hashRow(String key, ObjectNode row) {
 		int result = (key != null) ? key.hashCode() : 0;
 
@@ -190,6 +261,12 @@ public class JSONTable implements StoredTable {
 	}
 
 
+	/**
+	 * Compares two tables for equality.
+	 *
+	 * @param obj  The object to compare.
+	 * @return     True if the tables are equal, otherwise false.
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -207,7 +284,11 @@ public class JSONTable implements StoredTable {
 	}
 
 
-
+	/**
+	 * Provides an iterator for the table rows.
+	 *
+	 * @return An iterator for the table rows.
+	 */
 	@Override
 	public Iterator<Row> iterator() {
 		List<Row> rowList = new ArrayList<>();
@@ -228,12 +309,24 @@ public class JSONTable implements StoredTable {
 		return rowList.iterator();
 	}
 
+
+	/**
+	 * Retrieves the name of the table.
+	 *
+	 * @return The name of the table.
+	 */
 	@Override
 	public String name() {
 		File file = this.path.toFile();
 		return file.getName().replace(".json", "");
 	}
 
+
+	/**
+	 * Retrieves the column names of the table.
+	 *
+	 * @return List of column names.
+	 */
 	@Override
 	public List<String> columns() {
 		if (tree.has("metadata") && tree.get("metadata").has("columns")) {
@@ -243,6 +336,12 @@ public class JSONTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Generates a tabular representation of the table.
+	 *
+	 * @return Tabular view of the table.
+	 */
 	@Override
 	public String toString() {
 		return toTabularView(false);
