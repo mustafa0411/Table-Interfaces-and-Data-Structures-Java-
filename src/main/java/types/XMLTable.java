@@ -1,7 +1,7 @@
 package types;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -13,6 +13,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
@@ -91,12 +92,14 @@ public class XMLTable implements StoredTable {
 		flush();
 	}
 
+	//make sure that the flush method uses the default pretty printer for XML just like JSON.
 	@Override
 	public void flush() {
-		try (FileWriter fileWriter = new FileWriter(path.toFile())){
-			XMLWriter xmlWriter = new XMLWriter(fileWriter);
-			xmlWriter.write(document);
-			xmlWriter.close();
+		try (FileOutputStream fileOutputStream = new FileOutputStream(path.toFile())){
+			OutputFormat format = OutputFormat.createPrettyPrint();
+			XMLWriter writer = new XMLWriter(fileOutputStream, format);
+			writer.write(document);
+			writer.close();
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to write to the XML file.", e);
 		}
@@ -193,24 +196,30 @@ public class XMLTable implements StoredTable {
 	}
 
 
-
+	//use decode row hashcode instead of helper method for both JSON and XML.
 	@Override
 	public int hashCode() {
-		int hash = 0;
+		int hashCodeSum = 0;
 		Element rowsElement = document.getRootElement().element("rows");
 
 		for (Element rowElement : rowsElement.elements("row")) {
-			// Incorporate the hash code of each row's key
-			hash += rowElement.elementText("key").hashCode();
+			String key = rowElement.elementText("key");
+			List<Object> fields = new ArrayList<>();
 
-			// Incorporate the hash code of each field within the row
 			for (Element fieldElement : rowElement.element("fields").elements("field")) {
-				hash += fieldElement.getText().hashCode();
+				fields.add(fieldElement.getText());
 			}
+
+			// Create a new Row object and calculate its hash code
+			Row newRow = new Row(key, fields);
+			hashCodeSum += newRow.hashCode();
 		}
 
-		return hash;
+		return hashCodeSum;
 	}
+
+
+
 
 	@Override
 	public boolean equals(Object obj) {

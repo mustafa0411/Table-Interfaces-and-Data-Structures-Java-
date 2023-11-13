@@ -227,7 +227,7 @@ public class JSONTable implements StoredTable {
 	 */
 	@Override
 	public int hashCode() {
-		int hash = 0;
+		int hashCodeSum = 0;
 
 		if (tree.has("data") && tree.get("data").isObject()) {
 			ObjectNode data = (ObjectNode) tree.get("data");
@@ -235,12 +235,21 @@ public class JSONTable implements StoredTable {
 
 			while (fieldNames.hasNext()) {
 				String key = fieldNames.next();
-				ObjectNode row = (ObjectNode) data.get(key);
-				hash += hashRow(key, row);
+				ObjectNode rowNode = (ObjectNode) data.get(key);
+
+				// Extract key and fields for the new Row object
+				String rowKey = rowNode.get("key").asText();
+				List<Object> rowFields = mapper.convertValue(rowNode.get("fields"), List.class);
+
+				// Create a new Row object and calculate its hash code
+				Row newRow = new Row(rowKey, rowFields);
+				hashCodeSum += newRow.hashCode();
 			}
 		}
-		return hash;
+
+		return hashCodeSum;
 	}
+
 
 
 	/**
@@ -250,15 +259,7 @@ public class JSONTable implements StoredTable {
 	 * @param row  The row object.
 	 * @return     The hash code for the row.
 	 */
-	private int hashRow(String key, ObjectNode row) {
-		int result = (key != null) ? key.hashCode() : 0;
 
-		if (row.has("fields")) {
-			List<Object> fields = mapper.convertValue(row.get("fields"), List.class);
-			result = 31 * result + ((fields != null) ? fields.hashCode() : 0);
-		}
-		return result;
-	}
 
 
 	/**
