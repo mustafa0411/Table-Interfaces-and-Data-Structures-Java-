@@ -18,7 +18,6 @@ import org.dom4j.io.XMLWriter;
 
 import models.Row;
 import models.StoredTable;
-import models.Table;
 
 public class XMLTable implements StoredTable {
 
@@ -88,7 +87,7 @@ public class XMLTable implements StoredTable {
 	@Override
 	public void clear() {
 		Element rowsElement = document.getRootElement().element("rows");
-		((Table) rowsElement).clear();
+		rowsElement.elements("row").forEach(Element::detach);
 		flush();
 	}
 
@@ -105,7 +104,43 @@ public class XMLTable implements StoredTable {
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		throw new UnsupportedOperationException();
+		if (degree() != fields.size()) {
+			throw new IllegalArgumentException("Degree mismatch");
+		}
+
+		Element rowsElement = document. getRootElement().element("rows");
+
+		for (Element rowElement : rowsElement.elements("row")) {
+			if (rowElement.elementText("key").equals(key)) {
+				List<Object> oldFields = new ArrayList<>();
+
+				for (Element fieldElement : rowElement.element("fields").elements("field")) {
+					oldFields.add(fieldElement.getText());
+				}
+				rowsElement.remove(rowElement);
+
+				Element newRow = rowsElement.addElement("row");
+				newRow.addElement("key").setText(key);
+				Element fieldsElement = newRow.addElement("fields");
+
+				for (Object field : fields) {
+					fieldsElement.addElement("field").setText(field.toString());
+				}
+				flush();
+				return oldFields;
+			}
+		}
+
+		Element newRow = rowsElement.addElement("row");
+		newRow.addElement("key").setText(key);
+		Element fieldsElement = newRow.addElement("fields");
+
+		for (Object field : fields) {
+			fieldsElement.addElement("field").setText(field.toString());
+		}
+
+		flush();
+		return null;
 	}
 
 	@Override
@@ -178,11 +213,15 @@ public class XMLTable implements StoredTable {
 	public List<String> columns() {
 		List<String> columnList = new ArrayList<>();
 		Element columnsElement = document.getRootElement().element("columns");
-		for (Element columnElement : columnsElement.elements("columns")) {
+
+		// Assuming each column is represented as a "column" element
+		for (Element columnElement : columnsElement.elements("column")) {
 			columnList.add(columnElement.getText());
 		}
+
 		return columnList;
 	}
+
 
 	@Override
 	public String toString() {
