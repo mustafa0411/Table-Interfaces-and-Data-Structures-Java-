@@ -155,7 +155,7 @@ public class XMLTable implements StoredTable {
 
 	}
 
-	public Element toElement(String key, List<Object> fields) {
+	public Element toElement(String key, List<Object> fields, Document document) {
 		// Use DocumentHelper to create a "row" element
 		Element rowElement = DocumentHelper.createElement("row");
 
@@ -170,6 +170,7 @@ public class XMLTable implements StoredTable {
 			fieldElement.addAttribute("type", field.getClass().getSimpleName());
 			fieldElement.addAttribute("value", encodeField(field));
 		}
+
 		return rowElement;
 	}
 
@@ -208,21 +209,23 @@ public class XMLTable implements StoredTable {
 
 		for (Element rowElement : rowsElement.elements("row")) {
 			if (rowElement.elementText("key").equals(key)) {
-				List<Object> oldFields = decodeRow(rowElement).fields();
+				List<Object> oldFields = fieldsOf(rowElement);
 
 				rowsElement.remove(rowElement);
 
 				// Use encodeRow to construct the XML elements
-				Element newRow = rowsElement.addElement("row");
-				encodeRow(newRow, key, fields);
+				Element newRow = toElement(key, fields, document);
+				rowsElement.add(newRow);
+
 				flush();
 				return oldFields;
 			}
 		}
 
 		// Use encodeRow to construct the XML elements
-		Element newRow = rowsElement.addElement("row");
-		encodeRow(newRow, key, fields);
+		Element newRow = toElement(key, fields, document);
+		rowsElement.add(newRow);
+
 		flush();
 		return null;
 	}
