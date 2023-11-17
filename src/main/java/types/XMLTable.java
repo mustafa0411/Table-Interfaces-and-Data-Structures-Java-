@@ -103,7 +103,11 @@ public class XMLTable implements StoredTable {
 	}
 
 	public static String encodeField(Object field) {
-		return field.toString();
+		if (field instanceof Integer || field instanceof Boolean) {
+			return field.toString();
+		} else {
+			return (String) field;
+		}
 
 	}
 
