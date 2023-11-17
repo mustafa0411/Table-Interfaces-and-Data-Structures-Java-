@@ -90,7 +90,6 @@ public class XMLTable implements StoredTable {
 		flush();
 	}
 
-	//make sure that the flush method uses the default pretty printer for XML just like JSON.
 	@Override
 	public void flush() {
 		try (FileOutputStream fileOutputStream = new FileOutputStream(path.toFile())){
@@ -145,7 +144,10 @@ public class XMLTable implements StoredTable {
 			return Integer.parseInt(field);
 		} else if (field.equalsIgnoreCase("true") || field.equalsIgnoreCase("false")) {
 			return Boolean.parseBoolean(field);
-		} else {
+		} else if (field.equalsIgnoreCase("null")) {
+			return null;
+		}
+		else {
 			return field;
 		}
 	}
