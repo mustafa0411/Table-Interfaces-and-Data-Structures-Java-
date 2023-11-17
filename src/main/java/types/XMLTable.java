@@ -111,30 +111,30 @@ public class XMLTable implements StoredTable {
 	}
 
 
-	private void encodeRow(Element rowElement, String key, List<Object> fields) {
-		rowElement.addElement("key").setText(key);
-		Element fieldsElement = rowElement.addElement("fields");
-
-		// Updated to use encodeField to encode fields, handling null values
-		for (Object field : fields) {
-			if (field == null) {
-				fieldsElement.addElement("field").setText("null");
-			} else {
-				fieldsElement.addElement("field").setText(encodeField(field));
-			}
-		}
-	}
-
-	private Row decodeRow(Element rowElement) {
-		String key = rowElement.elementText("key");
-		List<Object> fields = new ArrayList<>();
-
-		for (Element fieldElement : rowElement.element("fields").elements("field")) {
-			fields.add(decodeField(fieldElement.getText()));
-		}
-
-		return new Row(key, fields);
-	}
+	//	private void encodeRow(Element rowElement, String key, List<Object> fields) {
+	//		rowElement.addElement("key").setText(key);
+	//		Element fieldsElement = rowElement.addElement("fields");
+	//
+	//		// Updated to use encodeField to encode fields, handling null values
+	//		for (Object field : fields) {
+	//			if (field == null) {
+	//				fieldsElement.addElement("field").setText("null");
+	//			} else {
+	//				fieldsElement.addElement("field").setText(encodeField(field));
+	//			}
+	//		}
+	//	}
+	//
+	//	private Row decodeRow(Element rowElement) {
+	//		String key = rowElement.elementText("key");
+	//		List<Object> fields = new ArrayList<>();
+	//
+	//		for (Element fieldElement : rowElement.element("fields").elements("field")) {
+	//			fields.add(decodeField(fieldElement.getText()));
+	//		}
+	//
+	//		return new Row(key, fields);
+	//	}
 
 
 
@@ -280,7 +280,8 @@ public class XMLTable implements StoredTable {
 		Element rowsElement = document.getRootElement().element("rows");
 
 		for (Element rowElement : rowsElement.elements("row")) {
-			Row decodedRow = decodeRow(rowElement);
+			List<Object> fields = fieldsOf(rowElement);
+			Row decodedRow = new Row(keyOf(rowElement), fields);
 
 			// Calculate the hash code using the decoded Row object
 			hashCodeSum += decodedRow.hashCode();
