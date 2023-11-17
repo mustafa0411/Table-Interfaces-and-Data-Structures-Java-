@@ -171,6 +171,10 @@ public class XMLTable implements StoredTable {
 	}
 
 
+	public String keyOf(Element elem) {
+		// Return the value of the "key" attribute
+		return elem.attributeValue("key");
+	}
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
