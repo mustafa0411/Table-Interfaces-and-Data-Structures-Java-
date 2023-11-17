@@ -142,9 +142,15 @@ public class XMLTable implements StoredTable {
 		for (Object field : fields) {
 			// Add a child element to the "row" element
 			Element fieldElement = rowElement.addElement("field");
-			// Serialize the field type and value and set them as attributes
-			fieldElement.addAttribute("type", field.getClass().getSimpleName());
-			fieldElement.addAttribute("value", encodeField(field));
+
+			if (field != null) {
+				// Serialize the field type and value and set them as attributes
+				fieldElement.addAttribute("type", field.getClass().getSimpleName());
+				fieldElement.addAttribute("value", encodeField(field));
+			} else {
+				fieldElement.addAttribute("type", "null");
+				fieldElement.addAttribute("value", "null");
+			}
 		}
 
 		return rowElement;
