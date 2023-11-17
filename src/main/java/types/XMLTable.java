@@ -110,34 +110,6 @@ public class XMLTable implements StoredTable {
 		}
 	}
 
-
-	//	private void encodeRow(Element rowElement, String key, List<Object> fields) {
-	//		rowElement.addElement("key").setText(key);
-	//		Element fieldsElement = rowElement.addElement("fields");
-	//
-	//		// Updated to use encodeField to encode fields, handling null values
-	//		for (Object field : fields) {
-	//			if (field == null) {
-	//				fieldsElement.addElement("field").setText("null");
-	//			} else {
-	//				fieldsElement.addElement("field").setText(encodeField(field));
-	//			}
-	//		}
-	//	}
-	//
-	//	private Row decodeRow(Element rowElement) {
-	//		String key = rowElement.elementText("key");
-	//		List<Object> fields = new ArrayList<>();
-	//
-	//		for (Element fieldElement : rowElement.element("fields").elements("field")) {
-	//			fields.add(decodeField(fieldElement.getText()));
-	//		}
-	//
-	//		return new Row(key, fields);
-	//	}
-
-
-
 	public static Object decodeField(String type, String value) {
 		// Simple decoding: based on the type, convert the string value back to the original type
 		// Used switch cases due to simpler implementation
@@ -149,6 +121,10 @@ public class XMLTable implements StoredTable {
 			return Integer.parseInt(value);
 		case "Double":
 			return Double.parseDouble(value);
+		case "Boolean":
+			return Boolean.parseBoolean(value);
+		case "Null":
+			return null;
 		default:
 			throw new IllegalArgumentException("unssuported field type: " + type);
 		}
