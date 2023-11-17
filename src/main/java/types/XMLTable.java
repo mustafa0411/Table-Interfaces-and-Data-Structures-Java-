@@ -230,13 +230,14 @@ public class XMLTable implements StoredTable {
 		return null;
 	}
 
+
 	@Override
 	public List<Object> get(String key) {
 		Element rowsElement = document.getRootElement().element("rows");
 
 		for (Element rowElement : rowsElement.elements("row")) {
-			if (rowElement.elementText("key").equals(key)) {
-				return decodeRow(rowElement).fields();
+			if (keyOf(rowElement).equals(key)) {
+				return fieldsOf(rowElement);
 			}
 		}
 		return null;
@@ -247,8 +248,8 @@ public class XMLTable implements StoredTable {
 		Element rowsElement = document.getRootElement().element("rows");
 
 		for (Element rowElement : rowsElement.elements("row")) {
-			if (rowElement.elementText("key").equals(key)) {
-				List<Object> oldFields = decodeRow(rowElement).fields();
+			if (keyOf(rowElement).equals(key)) {
+				List<Object> oldFields = fieldsOf(rowElement);
 
 				rowsElement.remove(rowElement);
 				flush();
@@ -313,7 +314,7 @@ public class XMLTable implements StoredTable {
 			List<Object> fields = new ArrayList<>();
 
 			for (Element fieldElement : rowElement.element("fields").elements("field")) {
-				fields.add(decodeField(fieldElement.getText()));
+				fields.add(fieldsOf(fieldElement));
 			}
 
 			Row row = new Row(key, fields);
