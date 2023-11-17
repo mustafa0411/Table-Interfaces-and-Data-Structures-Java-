@@ -176,6 +176,24 @@ public class XMLTable implements StoredTable {
 		return elem.attributeValue("key");
 	}
 
+
+	public List<Object> fieldsOf(Element elem){
+		List<Object> fields = new ArrayList<>();
+
+		// For each child element under the given elem:
+		for (Element fieldElement : elem.elements("field")) {
+			// Deserialize the field type and value
+			String type = fieldElement.attributeValue("type");
+			String value = fieldElement.attributeValue("value");
+
+			fields.add(decodeField(type, value));
+
+		}
+		return fields;
+	}
+
+
+
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		List<String> columns = columns();
