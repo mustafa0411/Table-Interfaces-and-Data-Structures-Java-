@@ -90,6 +90,7 @@ public class XMLTable implements StoredTable {
 		flush();
 	}
 
+	//make sure that the flush method uses the default pretty printer for XML just like JSON.
 	@Override
 	public void flush() {
 		try (FileOutputStream fileOutputStream = new FileOutputStream(path.toFile())){
@@ -111,6 +112,30 @@ public class XMLTable implements StoredTable {
 	}
 
 
+	private void encodeRow(Element rowElement, String key, List<Object> fields) {
+		rowElement.addElement("key").setText(key);
+		Element fieldsElement = rowElement.addElement("fields");
+
+		// Updated to use encodeField to encode fields, handling null values
+		for (Object field : fields) {
+			if (field == null) {
+				fieldsElement.addElement("field").setText("null");
+			} else {
+				fieldsElement.addElement("field").setText(encodeField(field));
+			}
+		}
+	}
+
+	private Row decodeRow(Element rowElement) {
+		String key = rowElement.elementText("key");
+		List<Object> fields = new ArrayList<>();
+
+		for (Element fieldElement : rowElement.element("fields").elements("field")) {
+			fields.add(decodeField(fieldElement.getText()));
+		}
+
+		return new Row(key, fields);
+	}
 
 
 
@@ -124,6 +149,7 @@ public class XMLTable implements StoredTable {
 			return field;
 		}
 	}
+
 
 
 	@Override
@@ -185,8 +211,6 @@ public class XMLTable implements StoredTable {
 	}
 
 
-
-
 	@Override
 	public int degree() {
 		return columns().size();
@@ -215,19 +239,6 @@ public class XMLTable implements StoredTable {
 
 		return hashCodeSum;
 	}
-
-
-
-	//	// header method for decodefield for XML table interface, needs to be used in
-	//	// the hashcode method in order to be returned as objects so that it can correctly calculate the hashcode
-	//	public static Object decodeField(String field) {
-	//
-	//	}
-	//
-	//	// might need this method
-	//	public static Object encodeField(Object obj) {
-	//
-	//	}
 
 
 	@Override
