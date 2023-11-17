@@ -103,16 +103,18 @@ public class XMLTable implements StoredTable {
 	}
 
 	public static String encodeField(Object field) {
-		if (field instanceof Integer || field instanceof Boolean) {
-			return field.toString();
-		} else {
-			return (String) field;
-		}
+		return field.toString();
+
 	}
 
 	public static Object decodeField(String type, String value) {
 		// Simple decoding: based on the type, convert the string value back to the original type
 		// Used switch cases due to simpler implementation
+
+		//Used an if condition for checking nulls due to switch statements not detecting them.
+		if(type.equals("null")) {
+			return null;
+		}
 
 		switch (type) {
 		case "String":
@@ -123,8 +125,6 @@ public class XMLTable implements StoredTable {
 			return Double.parseDouble(value);
 		case "Boolean":
 			return Boolean.parseBoolean(value);
-		case "Null":
-			return null;
 		default:
 			throw new IllegalArgumentException("unssuported field type: " + type);
 		}
@@ -148,6 +148,7 @@ public class XMLTable implements StoredTable {
 				fieldElement.addAttribute("type", field.getClass().getSimpleName());
 				fieldElement.addAttribute("value", encodeField(field));
 			} else {
+				// Handle null fields gracefully
 				fieldElement.addAttribute("type", "null");
 				fieldElement.addAttribute("value", "null");
 			}
@@ -163,7 +164,7 @@ public class XMLTable implements StoredTable {
 	}
 
 
-	public List<Object> fieldsOf(Element elem){
+	public List<Object> fieldsOf(Element elem) {
 		List<Object> fields = new ArrayList<>();
 
 		// For each child element under the given elem:
@@ -171,10 +172,10 @@ public class XMLTable implements StoredTable {
 			// Deserialize the field type and value
 			String type = fieldElement.attributeValue("type");
 			String value = fieldElement.attributeValue("value");
-
+			// Add a corresponding field to the list of fields
 			fields.add(decodeField(type, value));
-
 		}
+
 		return fields;
 	}
 
@@ -190,7 +191,7 @@ public class XMLTable implements StoredTable {
 		Element rowsElement = document.getRootElement().element("rows");
 
 		for (Element rowElement : rowsElement.elements("row")) {
-			if (rowElement.elementText("key").equals(key)) {
+			if (keyOf(rowElement).equals(key)) {
 				List<Object> oldFields = fieldsOf(rowElement);
 
 				rowsElement.remove(rowElement);
