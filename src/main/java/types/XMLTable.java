@@ -26,6 +26,10 @@ public class XMLTable implements StoredTable {
 	private final Path path;
 	private Document document;
 
+
+	/**
+	 * Creates the base directories for storing XML files if they don't exist.
+	 */
 	public void createBaseDirectories(){
 		File baseDirFile = BASE_DIR.toFile();
 		if(!baseDirFile.exists()) {
@@ -33,6 +37,13 @@ public class XMLTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Constructor for creating a new XMLTable with specified name and columns.
+	 *
+	 * @param name    The name of the table.
+	 * @param columns The list of column names.
+	 */
 	public XMLTable(String name, List<String> columns) {
 		createBaseDirectories();
 		this.path = BASE_DIR.resolve(name + ".xml");
@@ -67,6 +78,11 @@ public class XMLTable implements StoredTable {
 	}
 
 
+	/**
+	 * Constructor for loading an existing XMLTable with the specified name.
+	 *
+	 * @param name The name of the table to load.
+	 */
 	public XMLTable(String name) {
 		createBaseDirectories();
 		this.path = BASE_DIR.resolve(name + ".xml");
@@ -83,6 +99,10 @@ public class XMLTable implements StoredTable {
 
 	}
 
+
+	/**
+	 * Clears all rows in the table.
+	 */
 	@Override
 	public void clear() {
 		Element rowsElement = document.getRootElement().element("rows");
@@ -90,6 +110,10 @@ public class XMLTable implements StoredTable {
 		flush();
 	}
 
+
+	/**
+	 * Flushes the document content to the XML file.
+	 */
 	@Override
 	public void flush() {
 		try (FileOutputStream fileOutputStream = new FileOutputStream(path.toFile())){
@@ -102,6 +126,13 @@ public class XMLTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Encodes a field to its string representation.
+	 *
+	 * @param field The field to encode.
+	 * @return The string representation of the field.
+	 */
 	public static String encodeField(Object field) {
 		if (field instanceof Integer || field instanceof Boolean) {
 			return field.toString();
@@ -111,6 +142,14 @@ public class XMLTable implements StoredTable {
 
 	}
 
+
+	/**
+	 * Decodes a field from its string representation.
+	 *
+	 * @param type  The type of the field.
+	 * @param value The string representation of the field.
+	 * @return The decoded field.
+	 */
 	public static Object decodeField(String type, String value) {
 		// Simple decoding: based on the type, convert the string value back to the original type
 		// Used switch cases due to simpler implementation
@@ -135,6 +174,15 @@ public class XMLTable implements StoredTable {
 
 	}
 
+
+	/**
+	 * Converts a key and list of fields to an XML element.
+	 *
+	 * @param key      The key of the row.
+	 * @param fields   The list of fields.
+	 * @param document The XML document.
+	 * @return The XML element representing the row.
+	 */
 	public Element toElement(String key, List<Object> fields, Document document) {
 		// Use DocumentHelper to create a "row" element
 		Element rowElement = DocumentHelper.createElement("row");
@@ -162,12 +210,24 @@ public class XMLTable implements StoredTable {
 	}
 
 
+	/**
+	 * Retrieves the key attribute value from an XML element.
+	 *
+	 * @param elem The XML element.
+	 * @return The value of the "key" attribute.
+	 */
 	public String keyOf(Element elem) {
 		// Return the value of the "key" attribute
 		return elem.attributeValue("key");
 	}
 
 
+	/**
+	 * Retrieves the list of fields from an XML element.
+	 *
+	 * @param elem The XML element.
+	 * @return The list of fields.
+	 */
 	public List<Object> fieldsOf(Element elem) {
 		List<Object> fields = new ArrayList<>();
 
@@ -184,7 +244,13 @@ public class XMLTable implements StoredTable {
 	}
 
 
-
+	/**
+	 * Adds a row with specified key and fields to the table.
+	 *
+	 * @param key    The key of the row.
+	 * @param fields The list of fields.
+	 * @return The list of fields from the replaced row if it existed, otherwise null.
+	 */
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		List<String> columns = columns();
@@ -218,6 +284,12 @@ public class XMLTable implements StoredTable {
 	}
 
 
+	/**
+	 * Retrieves the list of fields for the row with the specified key.
+	 *
+	 * @param key The key of the row.
+	 * @return The list of fields, or null if the row does not exist.
+	 */
 	@Override
 	public List<Object> get(String key) {
 		Element rowsElement = document.getRootElement().element("rows");
@@ -230,6 +302,13 @@ public class XMLTable implements StoredTable {
 		return null;
 	}
 
+
+	/**
+	 * Removes the row with the specified key from the table.
+	 *
+	 * @param key The key of the row to remove.
+	 * @return The list of fields from the removed row if it existed, otherwise null.
+	 */
 	@Override
 	public List<Object> remove(String key) {
 		Element rowsElement = document.getRootElement().element("rows");
@@ -247,11 +326,22 @@ public class XMLTable implements StoredTable {
 	}
 
 
+	/**
+	 * Retrieves the degree of the table (number of columns).
+	 *
+	 * @return The degree of the table.
+	 */
 	@Override
 	public int degree() {
 		return columns().size();
 	}
 
+
+	/**
+	 * Retrieves the size of the table (number of rows).
+	 *
+	 * @return The size of the table.
+	 */
 	@Override
 	public int size() {
 		Element rowsElement = document.getRootElement().element("rows");
@@ -259,7 +349,11 @@ public class XMLTable implements StoredTable {
 	}
 
 
-	//use decode row hashcode instead of helper method for both JSON and XML.
+	/**
+	 * Calculates the hash code for the table.
+	 *
+	 * @return The calculated hash code.
+	 */
 	@Override
 	public int hashCode() {
 		int hashCodeSum = 0;
@@ -278,6 +372,12 @@ public class XMLTable implements StoredTable {
 	}
 
 
+	/**
+	 * Checks if this table is equal to another object.
+	 *
+	 * @param obj The object to compare.
+	 * @return True if equal, false otherwise.
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -292,6 +392,12 @@ public class XMLTable implements StoredTable {
 		return this.hashCode() == otherTable.hashCode();
 	}
 
+
+	/**
+	 * Retrieves an iterator for the rows of the table.
+	 *
+	 * @return An iterator for the rows.
+	 */
 	@Override
 	public Iterator<Row> iterator() {
 		List<Row> rowList = new ArrayList<>();
@@ -309,12 +415,22 @@ public class XMLTable implements StoredTable {
 	}
 
 
-
+	/**
+	 * Retrieves the name of the table.
+	 *
+	 * @return The name of the table.
+	 */
 	@Override
 	public String name() {
 		return path.getFileName().toString().replace(".xml", "");
 	}
 
+
+	/**
+	 * Retrieves the list of column names.
+	 *
+	 * @return The list of column names.
+	 */
 	@Override
 	public List<String> columns() {
 		List<String> columnList = new ArrayList<>();
@@ -329,6 +445,11 @@ public class XMLTable implements StoredTable {
 	}
 
 
+	/**
+	 * Retrieves a tabular view of the table.
+	 *
+	 * @return A string representing the tabular view of the table.
+	 */
 	@Override
 	public String toString() {
 		return toTabularView(false);
