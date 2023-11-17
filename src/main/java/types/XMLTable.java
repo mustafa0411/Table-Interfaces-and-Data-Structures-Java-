@@ -293,12 +293,8 @@ public class XMLTable implements StoredTable {
 		Element rowsElement = document.getRootElement().element("rows");
 
 		for (Element rowElement : rowsElement.elements("row")) {
-			String key = rowElement.elementText("key");
-			List<Object> fields = new ArrayList<>();
-
-			for (Element fieldElement : rowElement.element("fields").elements("field")) {
-				fields.add(fieldsOf(fieldElement));
-			}
+			String key = keyOf(rowElement);
+			List<Object> fields = fieldsOf(rowElement);
 
 			Row row = new Row(key, fields);
 			rowList.add(row);
