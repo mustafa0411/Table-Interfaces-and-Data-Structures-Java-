@@ -138,18 +138,21 @@ public class XMLTable implements StoredTable {
 
 
 
-	public static Object decodeField(String field) {
-		// Assuming a simple case where the field can be a number, boolean, or string
-		if (field.matches("-?\\d+")) {
-			return Integer.parseInt(field);
-		} else if (field.equalsIgnoreCase("true") || field.equalsIgnoreCase("false")) {
-			return Boolean.parseBoolean(field);
-		} else if (field.equalsIgnoreCase("null")) {
-			return null;
+	public static Object decodeField(String type, String value) {
+		// Simple decoding: based on the type, convert the string value back to the original type
+		// Used switch cases due to simpler implementation
+
+		switch (type) {
+		case "String":
+			return value;
+		case "Integer":
+			return Integer.parseInt(value);
+		case "Double":
+			return Double.parseDouble(value);
+		default:
+			throw new IllegalArgumentException("unssuported field type: " + type);
 		}
-		else {
-			return field;
-		}
+
 	}
 
 	public Element toElement(String key, List<Object> fields) {
