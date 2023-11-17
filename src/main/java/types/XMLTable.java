@@ -90,7 +90,6 @@ public class XMLTable implements StoredTable {
 		flush();
 	}
 
-	//make sure that the flush method uses the default pretty printer for XML just like JSON.
 	@Override
 	public void flush() {
 		try (FileOutputStream fileOutputStream = new FileOutputStream(path.toFile())){
@@ -103,6 +102,30 @@ public class XMLTable implements StoredTable {
 		}
 	}
 
+	public static String encodeField(Object field) {
+		if (field instanceof Integer || field instanceof Boolean) {
+			return field.toString();
+		} else {
+			return (String) field;
+		}
+	}
+
+
+
+
+
+	public static Object decodeField(String field) {
+		// Assuming a simple case where the field can be a number, boolean, or string
+		if (field.matches("-?\\d+")) {
+			return Integer.parseInt(field);
+		} else if (field.equalsIgnoreCase("true") || field.equalsIgnoreCase("false")) {
+			return Boolean.parseBoolean(field);
+		} else {
+			return field;
+		}
+	}
+
+
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		List<String> columns = columns();
@@ -110,38 +133,25 @@ public class XMLTable implements StoredTable {
 			throw new IllegalArgumentException("Degree mismatch.");
 		}
 
-
-		Element rowsElement = document. getRootElement().element("rows");
+		Element rowsElement = document.getRootElement().element("rows");
 
 		for (Element rowElement : rowsElement.elements("row")) {
 			if (rowElement.elementText("key").equals(key)) {
-				List<Object> oldFields = new ArrayList<>();
+				List<Object> oldFields = decodeRow(rowElement).fields();
 
-				for (Element fieldElement : rowElement.element("fields").elements("field")) {
-					oldFields.add(fieldElement.getText());
-				}
 				rowsElement.remove(rowElement);
 
+				// Use encodeRow to construct the XML elements
 				Element newRow = rowsElement.addElement("row");
-				newRow.addElement("key").setText(key);
-				Element fieldsElement = newRow.addElement("fields");
-
-				for (Object field : fields) {
-					fieldsElement.addElement("field").setText(field.toString());
-				}
+				encodeRow(newRow, key, fields);
 				flush();
 				return oldFields;
 			}
 		}
 
+		// Use encodeRow to construct the XML elements
 		Element newRow = rowsElement.addElement("row");
-		newRow.addElement("key").setText(key);
-		Element fieldsElement = newRow.addElement("fields");
-
-		for (Object field : fields) {
-			fieldsElement.addElement("field").setText(field.toString());
-		}
-
+		encodeRow(newRow, key, fields);
 		flush();
 		return null;
 	}
@@ -152,12 +162,7 @@ public class XMLTable implements StoredTable {
 
 		for (Element rowElement : rowsElement.elements("row")) {
 			if (rowElement.elementText("key").equals(key)) {
-
-				List<Object> fields = new ArrayList<>();
-				for (Element fieldElement : rowElement.element("fields").elements("field")){
-					fields.add(fieldElement.getText());
-				}
-				return fields;
+				return decodeRow(rowElement).fields();
 			}
 		}
 		return null;
@@ -169,11 +174,8 @@ public class XMLTable implements StoredTable {
 
 		for (Element rowElement : rowsElement.elements("row")) {
 			if (rowElement.elementText("key").equals(key)) {
+				List<Object> oldFields = decodeRow(rowElement).fields();
 
-				List<Object> oldFields = new ArrayList<>();
-				for (Element fieldElement : rowElement.element("fields").elements("field")){
-					oldFields.add(fieldElement.getText());
-				}
 				rowsElement.remove(rowElement);
 				flush();
 				return oldFields;
@@ -181,6 +183,9 @@ public class XMLTable implements StoredTable {
 		}
 		return null;
 	}
+
+
+
 
 	@Override
 	public int degree() {
@@ -198,23 +203,31 @@ public class XMLTable implements StoredTable {
 	@Override
 	public int hashCode() {
 		int hashCodeSum = 0;
+
 		Element rowsElement = document.getRootElement().element("rows");
 
 		for (Element rowElement : rowsElement.elements("row")) {
-			String key = rowElement.elementText("key");
-			List<Object> fields = new ArrayList<>();
+			Row decodedRow = decodeRow(rowElement);
 
-			for (Element fieldElement : rowElement.element("fields").elements("field")) {
-				fields.add(fieldElement.getText());
-			}
-
-			// Create a new Row object and calculate its hash code
-			Row newRow = new Row(key, fields);
-			hashCodeSum += newRow.hashCode();
+			// Calculate the hash code using the decoded Row object
+			hashCodeSum += decodedRow.hashCode();
 		}
 
 		return hashCodeSum;
 	}
+
+
+
+	//	// header method for decodefield for XML table interface, needs to be used in
+	//	// the hashcode method in order to be returned as objects so that it can correctly calculate the hashcode
+	//	public static Object decodeField(String field) {
+	//
+	//	}
+	//
+	//	// might need this method
+	//	public static Object encodeField(Object obj) {
+	//
+	//	}
 
 
 	@Override
@@ -241,7 +254,7 @@ public class XMLTable implements StoredTable {
 			List<Object> fields = new ArrayList<>();
 
 			for (Element fieldElement : rowElement.element("fields").elements("field")) {
-				fields.add(fieldElement.getText());
+				fields.add(decodeField(fieldElement.getText()));
 			}
 
 			Row row = new Row(key, fields);
@@ -250,6 +263,7 @@ public class XMLTable implements StoredTable {
 
 		return rowList.iterator();
 	}
+
 
 
 	@Override
