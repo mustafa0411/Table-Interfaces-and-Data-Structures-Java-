@@ -41,7 +41,10 @@ public record Row(String key, List<Object> fields) {
 		int result = (key != null) ? key.hashCode() : 0;
 		result = 31 * result + ((fields != null) ? fields.hashCode() : 0);
 		return result;
+		//have this original method call the static one
+
 	}
+
 
 	public int compareTo(Row other) {
 		return this.key.compareTo(other.key);

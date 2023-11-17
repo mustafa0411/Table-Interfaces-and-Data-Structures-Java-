@@ -152,6 +152,24 @@ public class XMLTable implements StoredTable {
 		}
 	}
 
+	public Element toElement(String key, List<Object> fields) {
+		// Use DocumentHelper to create a "row" element
+		Element rowElement = DocumentHelper.createElement("row");
+
+		// Add the corresponding "key" attribute to the "row" element
+		rowElement.addAttribute("key", key);
+
+		// For each field in the list of fields:
+		for (Object field : fields) {
+			// Add a child element to the "row" element
+			Element fieldElement = rowElement.addElement("field");
+			// Serialize the field type and value and set them as attributes
+			fieldElement.addAttribute("type", field.getClass().getSimpleName());
+			fieldElement.addAttribute("value", encodeField(field));
+		}
+		return rowElement;
+	}
+
 
 
 	@Override

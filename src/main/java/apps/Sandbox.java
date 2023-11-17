@@ -16,7 +16,7 @@ public class Sandbox {
 		//		factionTable.put("Evil", List.of("Institute", "Fallout 4"));
 		//		factionTable.put("Mixed", List.of("BOS", "Fallout 4"));
 		//		factionTable.put("Good", List.of("NCR", "Fallout NV"));
-		//
+		// make sure to close tables
 		//
 		//
 		//		// Display factionCatalog Table
