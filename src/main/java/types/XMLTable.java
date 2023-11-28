@@ -19,6 +19,7 @@ import org.dom4j.io.XMLWriter;
 
 import models.Row;
 import models.StoredTable;
+import models.Table;
 
 public class XMLTable implements StoredTable {
 
@@ -387,7 +388,7 @@ public class XMLTable implements StoredTable {
 			return false;
 		}
 
-		XMLTable otherTable = (XMLTable) obj;
+		Table otherTable = (Table) obj;
 
 		return this.hashCode() == otherTable.hashCode();
 	}

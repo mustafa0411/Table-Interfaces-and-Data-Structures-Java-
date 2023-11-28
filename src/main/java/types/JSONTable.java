@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import models.Row;
 import models.StoredTable;
+import models.Table;
 
 public class JSONTable implements StoredTable {
 
@@ -279,7 +280,7 @@ public class JSONTable implements StoredTable {
 			return false; // It's a different class or null
 		}
 
-		JSONTable otherTable = (JSONTable) obj;
+		Table otherTable = (Table) obj;
 
 		// Compare the hash codes of the tables
 		return this.hashCode() == otherTable.hashCode();
