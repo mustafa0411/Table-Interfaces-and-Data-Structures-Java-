@@ -9,74 +9,67 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 
-@DisplayName("M3 Hash Table")
+@DisplayName("M6 Binary Table")
 @TestInstance(Lifecycle.PER_CLASS)
 @Execution(ExecutionMode.CONCURRENT)
 @TestClassOrder(ClassOrderer.ClassName.class)
-final class Module3 extends AbstractModule {
+final class Module6 extends AbstractModule {
 	@BeforeAll
 	void defineModule() {
-		battery = 1000;
-		volume = 500;
+		battery = 500;
+		volume = 100;
 	}
 
 	@Nested
-	@DisplayName("m3_table1 [degree 3]")
-	class Table1 extends HashTableContainer {
+	@DisplayName("m6_table1 [degree 4]")
+	class BinaryTable1 extends BinaryTableContainer {
 		@BeforeAll
 		void defineTable() {
-			name = "m3_table1";
-			columns = List.of("k1", "f1a", "f1b");
-		}
-	}
-
-	@Nested
-	@DisplayName("m3_table2 [degree 4]")
-	class Table2 extends HashTableContainer {
-		@BeforeAll
-		void defineTable() {
-			name = "m3_table2";
+			name = "m6_table1";
 			columns = List.of("k2", "f2a", "f2b", "f2c");
 		}
 	}
 
 	@Nested
-	@DisplayName("m3_table3 [degree 6]")
-	class Table3 extends HashTableContainer {
+	@DisplayName("m6_table2 [degree 6]")
+	class BinaryTable2 extends BinaryTableContainer {
 		@BeforeAll
 		void defineTable() {
-			name = "m3_table3";
+			name = "m6_table2";
 			columns = List.of("k3", "f3a", "f3b", "f3c", "f3d", "f3e");
 		}
 	}
 
-	abstract class HashTableContainer extends AbstractTableContainer {
+	@TestMethodOrder(MethodOrderer.MethodName.class)
+	abstract class BinaryTableContainer extends AbstractTableContainer {
 		static final List<String> exempt = List.of(
     		"models",
 			"types",
-			"java.lang.String",
-			"java.lang.Number",
         	"java.lang.Boolean",
-			"java.util.ImmutableCollections$AbstractImmutableCollection"
+			"java.nio.file.Path",
+			"java.util.ImmutableCollections$AbstractImmutableCollection",
+			"jdk.nio.zipfs.ZipFileSystem"
 		);
 
 		@TestFactory
-		@DisplayName("New Hash Table")
+		@DisplayName("New Binary Table")
 		@Execution(ExecutionMode.SAME_THREAD)
 		Stream<DynamicTest> testNewTable() {
 			logStart("new");
 
 			subject = testConstructor(
-				"types.HashTable",
+				"types.BinaryTable",
 				List.of(String.class, List.class),
 				List.of(name, columns),
 				exempt
@@ -84,24 +77,57 @@ final class Module3 extends AbstractModule {
 
 			control = new ControlTable();
 
-			return IntStream.range(0, battery).mapToObj(i -> {
+			return IntStream.range(0, battery/2).mapToObj(i -> {
 				if (i == 0)
 					return testName();
 				else if (i == 1)
 					return testColumns();
-				else if (i == 2 || i == battery-1)
+				else if (i == 2)
 					return testClear();
-				else if (i % 20 == 0 || i == battery-2)
+				else if (i % 20 == 0 || i == battery/2-1)
 					return testIterator();
 				else {
 					if (control.size() < volume * .99)
-						return testPut(false, CapacityProperty.ODD_PRIME);
+						return testPut(false, null);
+					else if (control.size() > volume * 1.01)
+						return testRemove(true, null);
+					else if (RNG.nextBoolean())
+						return testPut(RNG.nextBoolean(), null);
+					else
+						return testRemove(RNG.nextBoolean(), null);
+				}
+			});
+		}
+
+		@TestFactory
+		@DisplayName("Existing Binary Table")
+		@Execution(ExecutionMode.SAME_THREAD)
+		Stream<DynamicTest> thenTestExistingTable() {
+			logStart("existing");
+
+			subject = testConstructor(
+				"types.BinaryTable",
+				List.of(String.class, List.class),
+				List.of(name, columns),
+				exempt
+			);
+
+			return IntStream.range(0, battery/2).mapToObj(i -> {
+				if (i == 0)
+					return testName();
+				else if (i == 1)
+					return testColumns();
+				else if (i == 2 || i % 20 == 0 || i == battery/2-1)
+					return testIterator();
+				else {
+					if (control.size() < volume * .99)
+						return testPut(false, null);
 					else if (control.size() > volume * 1.01)
 						return testRemove(true, null);
 					else if (RNG.nextBoolean())
 						return testGet(RNG.nextBoolean());
 					else if (RNG.nextBoolean())
-						return testPut(RNG.nextBoolean(), CapacityProperty.ODD_PRIME);
+						return testPut(RNG.nextBoolean(), null);
 					else
 						return testRemove(RNG.nextBoolean(), null);
 				}
