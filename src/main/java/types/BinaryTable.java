@@ -1,5 +1,7 @@
 package types;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
@@ -11,6 +13,26 @@ public class BinaryTable implements StoredTable {
 	/*
 	 * TODO: For Module 6, finish this stub.
 	 */
+
+
+
+	private static final Path BASE_DIR = Path.of("db", "sub", "tables");
+	private final Path tableRoot;
+	private final Path dataDirectory;
+	private final Path metadataDirectory;
+
+
+	/**
+	 * Creates necessary directories for the database files.
+	 */
+
+	private void createBaseDirectories() {
+		try {
+			Files.createDirectories(BASE_DIR);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Failed to create base directories.");
+		}
+	}
 
 	public BinaryTable(String name, List<String> columns) {
 		throw new UnsupportedOperationException();
