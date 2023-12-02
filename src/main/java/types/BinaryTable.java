@@ -1,6 +1,7 @@
 package types;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
@@ -10,36 +11,55 @@ import models.Row;
 import models.StoredTable;
 
 public class BinaryTable implements StoredTable {
+
 	/*
-	 * TODO: For Module 6, finish this stub.
+	 * Required fields for the Module
 	 */
-
-
 
 	private static final Path BASE_DIR = Path.of("db", "sub", "tables");
-	private final Path tableRoot;
-	private final Path dataDirectory;
-	private final Path metadataDirectory;
+	private final Path root;
+	private final Path data;
+	private final Path metadata;
 
 
-	/**
-	 * Creates necessary directories for the database files.
-	 */
-
-	private void createBaseDirectories() {
+	private void createBaseDirectories(Path directory) {
 		try {
-			Files.createDirectories(BASE_DIR);
+			Files.createDirectories(directory);
+		} catch (FileAlreadyExistsException e) {
+			// Directory already exists, do nothing
 		} catch (IOException e) {
-			throw new IllegalArgumentException("Failed to create base directories.");
+			e.printStackTrace(); // Handle the exception as appropriate
 		}
 	}
 
 	public BinaryTable(String name, List<String> columns) {
-		throw new UnsupportedOperationException();
+		try {
+			this.root = BASE_DIR.resolve(name);
+			createBaseDirectories(root);
+
+			this.data = root.resolve("data");
+			createBaseDirectories(data);
+
+			this.metadata = root.resolve("metadata");
+			createBaseDirectories(metadata);
+
+			Path columnsFile = metadata.resolve("columns.txt");
+			Files.write(columnsFile, columns);
+
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create base directories.");
+		}
 	}
 
 	public BinaryTable(String name) {
-		throw new UnsupportedOperationException();
+		this.root = BASE_DIR.resolve(name);
+
+		if(!Files.exists(root) || !Files.isDirectory(root)) {
+			throw new IllegalArgumentException("Table root directory does not exist: " + root);
+		}
+
+		this.data = root.resolve("data");
+		this.metadata = root.resolve("metadata");
 	}
 
 	@Override
