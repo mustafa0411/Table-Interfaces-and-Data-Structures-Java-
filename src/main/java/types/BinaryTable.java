@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -131,7 +134,22 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private String digestFunction(Object key) {
-		throw new UnsupportedOperationException();
+		try {
+			var sha1 = MessageDigest.getInstance("SHA-1");
+
+			String saltedKey = "salt" + key;
+			sha1.update(saltedKey.getBytes());
+			var digest = sha1.digest();
+
+			// Corrected method names: lowercase() and toString()
+			var hex = HexFormat.of().withLowerCase();
+			var hexString = hex.toString();
+
+			return hexString;
+
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	private Path pathOf(String digest) {
