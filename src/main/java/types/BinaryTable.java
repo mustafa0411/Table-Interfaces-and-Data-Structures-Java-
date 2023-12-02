@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
@@ -153,7 +154,12 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private Path pathOf(String digest) {
-		throw new UnsupportedOperationException();
+		String prefix = digest.substring(0, 2);
+		String suffix = digest.substring(2);
+
+		Path resolvedPath = Paths.get("data", prefix, suffix);
+
+		return resolvedPath;
 	}
 
 	@Override
