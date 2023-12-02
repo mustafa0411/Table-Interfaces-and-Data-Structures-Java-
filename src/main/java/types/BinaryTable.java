@@ -1,6 +1,7 @@
 package types;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -78,7 +79,13 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static int readInt(Path path) {
-		throw new UnsupportedOperationException();
+		try(ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))){
+			return ois.readInt();
+
+		} catch (IOException e) {
+			e.printStackTrace(); // Handle the exception as appropriate
+			return 0; // Return default value if reading fails
+		}
 	}
 
 	private static void writeRow(Path path, Row row) {

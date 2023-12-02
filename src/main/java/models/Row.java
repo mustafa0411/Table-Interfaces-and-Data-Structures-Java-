@@ -1,5 +1,6 @@
 package models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 /**
  * A record representing a row in a table with a key and a list of fields.
  */
-public record Row(String key, List<Object> fields) {
+public record Row(String key, List<Object> fields) implements Serializable{
 
 
 	/**
