@@ -34,6 +34,14 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+	private static void createParentDirectories(Path path) {
+		try {
+			Files.createDirectories(path.getParent());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public BinaryTable(String name, List<String> columns) {
 		try {
 			this.root = BASE_DIR.resolve(name);
@@ -70,7 +78,7 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static void writeInt(Path path, int i)  {
-		try(ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))){
+		try(ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))) {
 			oos.writeObject(i);
 
 		} catch (IOException e) {
@@ -79,7 +87,7 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static int readInt(Path path) {
-		try(ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))){
+		try(ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
 			return ois.readInt();
 
 		} catch (IOException e) {
@@ -89,7 +97,13 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static void writeRow(Path path, Row row) {
-		throw new UnsupportedOperationException();
+		createParentDirectories(path);
+
+		try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))) {
+			oos.writeObject(row);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static Row readRow(Path path) {
