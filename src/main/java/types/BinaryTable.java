@@ -118,7 +118,16 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static void deleteRow(Path path) {
-		throw new UnsupportedOperationException();
+		try {
+			Files.delete(path);
+			Path parentDir = path.getParent();
+			if (Files.list(parentDir).count() == 0) {
+				Files.delete(parentDir);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private String digestFunction(Object key) {
