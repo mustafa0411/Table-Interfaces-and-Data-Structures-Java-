@@ -101,13 +101,20 @@ public class BinaryTable implements StoredTable {
 
 		try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))) {
 			oos.writeObject(row);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private static Row readRow(Path path) {
-		throw new UnsupportedOperationException();
+		try(ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
+			return (Row) ois.readObject();
+
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace(); // Handle the exception as appropriate
+			return null; // Return default value if reading fails
+		}
 	}
 
 	private static void deleteRow(Path path) {
