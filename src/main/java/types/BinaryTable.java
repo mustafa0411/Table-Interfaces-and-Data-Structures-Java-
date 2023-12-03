@@ -16,6 +16,7 @@ import java.util.List;
 
 import models.Row;
 import models.StoredTable;
+import models.Table;
 
 public class BinaryTable implements StoredTable {
 
@@ -198,22 +199,33 @@ public class BinaryTable implements StoredTable {
 
 	@Override
 	public int degree() {
-		throw new UnsupportedOperationException();
+		return columns().size();
 	}
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException();
+		return readInt(metadata.resolve("size"));
 	}
 
 	@Override
 	public int hashCode() {
-		throw new UnsupportedOperationException();
+		return readInt(metadata.resolve("fingerprint"));
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		throw new UnsupportedOperationException();
+		if (this == obj) {
+			return true; // It's the same object
+		}
+
+		if (obj == null || getClass() != obj.getClass()) {
+			return false; // It's a different class or null
+		}
+
+		Table otherTable = (Table) obj;
+
+		// Compare the hash codes of the tables
+		return this.hashCode() == otherTable.hashCode();
 	}
 
 	@Override
@@ -223,12 +235,16 @@ public class BinaryTable implements StoredTable {
 
 	@Override
 	public String name() {
-		throw new UnsupportedOperationException();
+		return root.getFileName().toString();
 	}
 
 	@Override
 	public List<String> columns() {
-		throw new UnsupportedOperationException();
+		try {
+			return Files.readAllLines(metadata.resolve("columns.txt"));
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed to create columns: " + e);
+		}
 	}
 
 	@Override
