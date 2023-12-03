@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +35,7 @@ public class BinaryTable implements StoredTable {
 		} catch (FileAlreadyExistsException e) {
 			// Directory already exists, do nothing
 		} catch (IOException e) {
-			e.printStackTrace(); // Handle the exception as appropriate
+			throw new RuntimeException("Failed to create base directories.", e);
 		}
 	}
 
@@ -42,7 +43,7 @@ public class BinaryTable implements StoredTable {
 		try {
 			Files.createDirectories(path.getParent());
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException("Failed to create parent directories.", e);
 		}
 	}
 
@@ -78,7 +79,27 @@ public class BinaryTable implements StoredTable {
 
 	@Override
 	public void clear() {
-		throw new UnsupportedOperationException();
+		try {
+
+			Files.walk(data)
+			.skip(1)
+			.sorted(Comparator.reverseOrder())
+			.forEach(path -> {
+				try {
+					Files.delete(path);
+				}
+				catch (IOException e) {
+					throw new IllegalStateException(e);
+				}
+			});
+
+			writeInt(metadata.resolve("size"), 0);
+			writeInt(metadata.resolve("fingerprint"), 0);
+
+
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed to clear file: " + e);
+		}
 	}
 
 	private static void writeInt(Path path, int i)  {
@@ -86,7 +107,7 @@ public class BinaryTable implements StoredTable {
 			oos.writeObject(i);
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IllegalStateException("Failed to write integer to file: " + path, e);
 		}
 	}
 
@@ -95,8 +116,7 @@ public class BinaryTable implements StoredTable {
 			return ois.readInt();
 
 		} catch (IOException e) {
-			e.printStackTrace(); // Handle the exception as appropriate
-			return 0; // Return default value if reading fails
+			throw new IllegalStateException("Failed to read integer from file: " + path, e);
 		}
 	}
 
@@ -107,7 +127,7 @@ public class BinaryTable implements StoredTable {
 			oos.writeObject(row);
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IllegalStateException("Failed to write row to file: " + path, e);
 		}
 	}
 
@@ -116,8 +136,7 @@ public class BinaryTable implements StoredTable {
 			return (Row) ois.readObject();
 
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace(); // Handle the exception as appropriate
-			return null; // Return default value if reading fails
+			throw new IllegalStateException("Failed to read row from file: " + path, e);
 		}
 	}
 
@@ -130,7 +149,7 @@ public class BinaryTable implements StoredTable {
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IllegalStateException("Failed to delete row file: " + path, e);
 		}
 	}
 
