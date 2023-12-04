@@ -216,12 +216,22 @@ public class BinaryTable implements StoredTable {
 		} else {
 			return null;
 		}
-
 	}
 
 	@Override
 	public List<Object> remove(String key) {
-		throw new UnsupportedOperationException();
+		String digest = digestFunction(key);
+		Path rowPath = pathOf(digest);
+
+		if (Files.exists(rowPath)) {
+			Row oldRow = readRow(rowPath);
+			deleteRow(rowPath);
+			writeInt(metadata.resolve("size"), size() + 1);
+			writeInt(metadata.resolve("fingerprint"), hashCode());
+			return oldRow.fields();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
