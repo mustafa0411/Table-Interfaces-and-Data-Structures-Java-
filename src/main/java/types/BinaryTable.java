@@ -207,7 +207,16 @@ public class BinaryTable implements StoredTable {
 
 	@Override
 	public List<Object> get(String key) {
-		throw new UnsupportedOperationException();
+		String digest = digestFunction(key);
+		Path rowPath = pathOf(digest);
+
+		if (Files.exists(rowPath)) {
+			Row row = readRow(rowPath);
+			return row.fields();
+		} else {
+			return null;
+		}
+
 	}
 
 	@Override
