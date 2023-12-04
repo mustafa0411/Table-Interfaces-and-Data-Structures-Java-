@@ -184,7 +184,25 @@ public class BinaryTable implements StoredTable {
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
-		throw new UnsupportedOperationException();
+		if (degree() != fields.size() + 1) {
+			throw new IllegalArgumentException("Degree mismatch.");
+		}
+
+		String digest = digestFunction(key);
+		Path rowPath = pathOf(digest);
+
+		if (Files.exists(rowPath)) {
+			Row oldRow = readRow(rowPath);
+			writeRow(rowPath, new Row(key, fields));
+			writeInt(metadata.resolve("fingerprint"), hashCode());
+			return oldRow.fields();
+		} else {
+			writeRow(rowPath, new Row(key, fields));
+			writeInt(metadata.resolve("size"), size() + 1);
+			writeInt(metadata.resolve("fingerprint"), hashCode());
+			return null;
+		}
+
 	}
 
 	@Override
@@ -249,6 +267,6 @@ public class BinaryTable implements StoredTable {
 
 	@Override
 	public String toString() {
-		throw new UnsupportedOperationException();
+		return toTabularView(false);
 	}
 }
