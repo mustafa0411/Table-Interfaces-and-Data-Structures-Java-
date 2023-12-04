@@ -1,12 +1,12 @@
 package types;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
@@ -113,13 +113,16 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static int readInt(Path path) {
-		try(ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
+		try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
 			return ois.readInt();
-
+		} catch (EOFException e) {
+			// Handle the EOFException gracefully, possibly returning a default value
+			return 0;
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to read integer from file: " + path, e);
 		}
 	}
+
 
 	private static void writeRow(Path path, Row row) {
 		createParentDirectories(path);
@@ -174,13 +177,17 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private Path pathOf(String digest) {
+		// Step 1: Find the 2-character hexadecimal prefix and the 38-character hexadecimal suffix
 		String prefix = digest.substring(0, 2);
 		String suffix = digest.substring(2);
 
-		Path resolvedPath = Paths.get("data", prefix, suffix);
+		// Step 2: Resolve the suffix file under the prefix directory under the data directory
+		Path resolvedPath = data.resolve(prefix).resolve(suffix);
 
+		// Step 3: Return the resolved path
 		return resolvedPath;
 	}
+
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
@@ -267,9 +274,16 @@ public class BinaryTable implements StoredTable {
 
 	@Override
 	public Iterator<Row> iterator() {
-		throw new UnsupportedOperationException();
+		try {
+			return Files.walk(data)
+					.filter(path -> Files.isRegularFile(path)) // Filter only regular files, not directories
+					.map(path -> readRow(path))
+					.iterator();
+		} catch (IOException e) {
+			e.printStackTrace(); // Handle the exception as appropriate
+			return null; // Or throw an exception, depending on your error handling strategy
+		}
 	}
-
 	@Override
 	public String name() {
 		return root.getFileName().toString();
