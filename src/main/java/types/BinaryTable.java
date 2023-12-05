@@ -206,12 +206,12 @@ public class BinaryTable implements StoredTable {
 		if (Files.exists(rowPath)) {
 			Row oldRow = readRow(rowPath);
 			writeRow(rowPath, newRow);
-			writeInt(metadata.resolve("fingerprint"), hashCode());
+			writeInt(metadata.resolve("fingerprint"), hashCode() - oldRow.hashCode() + newRow.hashCode());
 			return oldRow.fields();
 		} else {
 			writeRow(rowPath, newRow);
 			writeInt(metadata.resolve("size"), size() + 1);
-			writeInt(metadata.resolve("fingerprint"), hashCode());
+			writeInt(metadata.resolve("fingerprint"), hashCode() + newRow.hashCode());
 			return null;
 		}
 
@@ -238,8 +238,8 @@ public class BinaryTable implements StoredTable {
 		if (Files.exists(rowPath)) {
 			Row oldRow = readRow(rowPath);
 			deleteRow(rowPath);
-			writeInt(metadata.resolve("size"), size() + 1);
-			writeInt(metadata.resolve("fingerprint"), hashCode());
+			writeInt(metadata.resolve("size"), size() - 1);
+			writeInt(metadata.resolve("fingerprint"), hashCode() -oldRow.hashCode());
 			return oldRow.fields();
 		} else {
 			return null;
