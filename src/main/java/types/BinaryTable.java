@@ -25,9 +25,7 @@ public class BinaryTable implements StoredTable {
 	 */
 
 	private static final Path BASE_DIR = Path.of("db", "sub", "tables");
-	private final Path root;
-	private final Path data;
-	private final Path metadata;
+	private Path root, data, metadata;
 
 
 	private void createBaseDirectories(Path directory) {
@@ -104,8 +102,10 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static void writeInt(Path path, int i)  {
-		try(ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))) {
-			oos.writeObject(i);
+		try(ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
+			out.writeInt(i);
+			out.flush();
+			out.close();
 
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to write integer to file: " + path, e);
@@ -113,8 +113,8 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static int readInt(Path path) {
-		try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
-			return ois.readInt();
+		try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))) {
+			return in.readInt();
 		} catch (EOFException e) {
 			// Handle the EOFException gracefully, possibly returning a default value
 			return 0;
@@ -127,8 +127,10 @@ public class BinaryTable implements StoredTable {
 	private static void writeRow(Path path, Row row) {
 		createParentDirectories(path);
 
-		try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))) {
-			oos.writeObject(row);
+		try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
+			out.writeObject(row);
+			out.flush();
+			out.close();
 
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to write row to file: " + path, e);
@@ -136,8 +138,8 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static Row readRow(Path path) {
-		try(ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
-			return (Row) ois.readObject();
+		try(ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))) {
+			return (Row) in.readObject();
 
 		} catch (IOException | ClassNotFoundException e) {
 			throw new IllegalStateException("Failed to read row from file: " + path, e);
@@ -157,19 +159,18 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
-	private String digestFunction(Object key) {
+	private String digestFunction(String key) {
 		try {
 			var sha1 = MessageDigest.getInstance("SHA-1");
 
-			String saltedKey = "salt" + key;
-			sha1.update(saltedKey.getBytes());
+			sha1.update("salt-".getBytes());
+			sha1.update(key.getBytes());
+
 			var digest = sha1.digest();
+			String hex = HexFormat.of().withLowerCase().formatHex(digest);
 
-			// Corrected method names: lowercase() and toString()
-			var hex = HexFormat.of().withLowerCase();
-			var hexString = hex.toString();
-
-			return hexString;
+			// Step 4: Return the hexadecimal string
+			return hex;
 
 		} catch (NoSuchAlgorithmException e) {
 			throw new IllegalStateException(e);
@@ -177,16 +178,19 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private Path pathOf(String digest) {
-		// Step 1: Find the 2-character hexadecimal prefix and the 38-character hexadecimal suffix
+		// Check if the digest is a valid hexadecimal string
+		if (!digest.matches("[0-9a-fA-F]{40}")) {
+			throw new IllegalArgumentException("Invalid digest format: " + digest);
+		}
+
+		// Extract the 2-character prefix and the 38-character suffix
 		String prefix = digest.substring(0, 2);
 		String suffix = digest.substring(2);
 
-		// Step 2: Resolve the suffix file under the prefix directory under the data directory
-		Path resolvedPath = data.resolve(prefix).resolve(suffix);
-
-		// Step 3: Return the resolved path
-		return resolvedPath;
+		// Resolve the path under the data directory
+		return data.resolve(prefix).resolve(suffix);
 	}
+
 
 
 	@Override
