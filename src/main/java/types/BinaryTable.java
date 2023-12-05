@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -103,13 +104,24 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static void writeInt(Path path, int i)  {
-		try(ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
-			out.writeInt(i);
-			out.flush();
-			out.close();
+		if (CUSTOM_ENCODE) {
+			try(ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
+				ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+				buffer.putInt(i);
+				Files.write(path, buffer.array());
 
-		} catch (IOException e) {
-			throw new IllegalStateException("Failed to write integer to file: " + path, e);
+			} catch (IOException e) {
+				throw new IllegalStateException("Failed to write integer to file: " + path, e);
+			}
+		} else {
+			try(ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
+				out.writeInt(i);
+				out.flush();
+				out.close();
+
+			} catch (IOException e) {
+				throw new IllegalStateException("Failed to write integer to file: " + path, e);
+			}
 		}
 	}
 
