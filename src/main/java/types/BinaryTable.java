@@ -26,6 +26,7 @@ public class BinaryTable implements StoredTable {
 
 	private static final Path BASE_DIR = Path.of("db", "sub", "tables");
 	private Path root, data, metadata;
+	private static final boolean CUSTOM_ENCODE = true;
 
 
 	private void createBaseDirectories(Path directory) {
