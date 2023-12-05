@@ -169,7 +169,6 @@ public class BinaryTable implements StoredTable {
 			var digest = sha1.digest();
 			String hex = HexFormat.of().withLowerCase().formatHex(digest);
 
-			// Step 4: Return the hexadecimal string
 			return hex;
 
 		} catch (NoSuchAlgorithmException e) {
@@ -201,14 +200,16 @@ public class BinaryTable implements StoredTable {
 
 		String digest = digestFunction(key);
 		Path rowPath = pathOf(digest);
+		Row newRow = new Row(key, fields);
+
 
 		if (Files.exists(rowPath)) {
 			Row oldRow = readRow(rowPath);
-			writeRow(rowPath, new Row(key, fields));
+			writeRow(rowPath, newRow);
 			writeInt(metadata.resolve("fingerprint"), hashCode());
 			return oldRow.fields();
 		} else {
-			writeRow(rowPath, new Row(key, fields));
+			writeRow(rowPath, newRow);
 			writeInt(metadata.resolve("size"), size() + 1);
 			writeInt(metadata.resolve("fingerprint"), hashCode());
 			return null;
@@ -284,8 +285,7 @@ public class BinaryTable implements StoredTable {
 					.map(path -> readRow(path))
 					.iterator();
 		} catch (IOException e) {
-			e.printStackTrace(); // Handle the exception as appropriate
-			return null; // Or throw an exception, depending on your error handling strategy
+			throw new IllegalStateException(e);
 		}
 	}
 	@Override
