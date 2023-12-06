@@ -80,7 +80,6 @@ public class BinaryTable implements StoredTable {
 	@Override
 	public void clear() {
 		try {
-
 			Files.walk(data)
 			.skip(1)
 			.sorted(Comparator.reverseOrder())
@@ -116,7 +115,6 @@ public class BinaryTable implements StoredTable {
 				out.flush();
 				out.close();
 			}
-
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to write integer to file: " + path, e);
 
@@ -135,14 +133,12 @@ public class BinaryTable implements StoredTable {
 			}
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to read integer from file: " + path, e);
-
 		}
 	}
 
 
 	private static void writeRow(Path path, Row row) {
 		createParentDirectories(path);
-
 		try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
 			out.writeObject(row);
 			out.flush();
