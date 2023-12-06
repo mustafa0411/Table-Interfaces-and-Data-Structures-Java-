@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -14,6 +15,7 @@ import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import models.Row;
 import models.StoredTable;
@@ -51,17 +53,35 @@ public class BinaryTable implements StoredTable {
 
 	public BinaryTable(String name, List<String> columns) {
 		try {
-			this.root = BASE_DIR.resolve(name);
-			createBaseDirectories(root);
+			if (ZIP_ARCHIVE) {
+				this.root = BASE_DIR.resolve(name +"zip");
+				createParentDirectories(root);
 
-			this.data = root.resolve("data");
-			createBaseDirectories(data);
+				this.zipFileSystem = FileSystems.newFileSystem(root, Map.of("create", "true"));
+				this.virtualRoot = zipFileSystem.getPath("/");
 
-			this.metadata = root.resolve("metadata");
-			createBaseDirectories(metadata);
+				this.data = virtualRoot.resolve("data");
+				createBaseDirectories(data);
 
-			Path columnsFile = metadata.resolve("columns.txt");
-			Files.write(columnsFile, columns);
+				this.metadata = virtualRoot.resolve("metadata");
+				createBaseDirectories(metadata);
+
+				Path columnsFile = metadata.resolve("columns.txt");
+				Files.write(columnsFile, columns);
+
+			} else {
+				this.root = BASE_DIR.resolve(name);
+				createBaseDirectories(root);
+
+				this.data = root.resolve("data");
+				createBaseDirectories(data);
+
+				this.metadata = root.resolve("metadata");
+				createBaseDirectories(metadata);
+
+				Path columnsFile = metadata.resolve("columns.txt");
+				Files.write(columnsFile, columns);
+			}
 
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to create base directories.");
