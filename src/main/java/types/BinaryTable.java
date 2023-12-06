@@ -158,9 +158,16 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static Row readRow(Path path) {
-		try(ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))) {
-			return (Row) in.readObject();
+		try {
+			if (CUSTOM_ENCODE) {
+				byte[] bytes = Files.readAllBytes(path);
+				return Row.fromBytes(bytes);
 
+			} else {
+				try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))) {
+					return (Row) in.readObject();
+				}
+			}
 		} catch (IOException | ClassNotFoundException e) {
 			throw new IllegalStateException("Failed to read row from file: " + path, e);
 		}
