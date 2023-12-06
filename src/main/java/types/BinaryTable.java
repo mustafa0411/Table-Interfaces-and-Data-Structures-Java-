@@ -54,7 +54,7 @@ public class BinaryTable implements StoredTable {
 	public BinaryTable(String name, List<String> columns) {
 		try {
 			if (ZIP_ARCHIVE) {
-				this.root = BASE_DIR.resolve(name +"zip");
+				this.root = BASE_DIR.resolve(name +".zip");
 				createParentDirectories(root);
 
 				this.zipFileSystem = FileSystems.newFileSystem(root, Map.of("create", "true"));
