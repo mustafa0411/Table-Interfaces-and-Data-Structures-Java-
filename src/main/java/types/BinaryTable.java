@@ -110,10 +110,11 @@ public class BinaryTable implements StoredTable {
 				Files.write(path, bytes);
 
 			} else {
-				var out = new ObjectOutputStream(Files.newOutputStream(path));
-				out.writeInt(i);
-				out.flush();
-				out.close();
+				try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))){
+					out.writeInt(i);
+					out.flush();
+					out.close();
+				}
 			}
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to write integer to file: " + path, e);
@@ -128,8 +129,9 @@ public class BinaryTable implements StoredTable {
 				ByteBuffer buffer = ByteBuffer.wrap(bytes);
 				return buffer.getInt();
 			} else {
-				var in = new ObjectInputStream(Files.newInputStream(path));
-				return in.readInt();
+				try(ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))){
+					return in.readInt();
+				}
 			}
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to read integer from file: " + path, e);
