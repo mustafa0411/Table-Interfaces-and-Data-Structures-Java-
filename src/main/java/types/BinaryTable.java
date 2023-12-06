@@ -146,10 +146,11 @@ public class BinaryTable implements StoredTable {
 				Files.write(path, rowBytes);
 
 			} else {
-				var out = new ObjectOutputStream(Files.newOutputStream(path));
-				out.writeObject(row);
-				out.flush();
-				out.close();
+				try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))){
+					out.writeObject(row);
+					out.flush();
+					out.close();
+				}
 			}
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to write row to file: " + path, e);
