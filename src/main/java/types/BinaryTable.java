@@ -117,46 +117,26 @@ public class BinaryTable implements StoredTable {
 				out.close();
 			}
 
-
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to write integer to file: " + path, e);
 
 		}
-
-
-
-
-
-		//		try(ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
-		//			out.writeInt(i);
-		//			out.flush();
-		//			out.close();
-		//
-		//		} catch (IOException e) {
-		//			throw new IllegalStateException("Failed to write integer to file: " + path, e);
-		//		}
 	}
 
 	private static int readInt(Path path) {
 		try {
-
-
+			if (CUSTOM_ENCODE) {
+				byte[] bytes = Files.readAllBytes(path);
+				ByteBuffer buffer = ByteBuffer.wrap(bytes);
+				return buffer.getInt();
+			} else {
+				var in = new ObjectInputStream(Files.newInputStream(path));
+				return in.readInt();
+			}
 		} catch (IOException e) {
+			throw new IllegalStateException("Failed to read integer from file: " + path, e);
 
 		}
-
-
-
-
-
-		//		try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))) {
-		//			return in.readInt();
-		//		} catch (EOFException e) {
-		//			// Handle the EOFException gracefully, possibly returning a default value
-		//			return 0;
-		//		} catch (IOException e) {
-		//			throw new IllegalStateException("Failed to read integer from file: " + path, e);
-		//		}
 	}
 
 
