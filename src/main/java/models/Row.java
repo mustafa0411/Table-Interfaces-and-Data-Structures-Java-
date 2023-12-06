@@ -1,6 +1,7 @@
 package models;
 
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -57,12 +58,44 @@ public record Row(String key, List<Object> fields) implements Serializable{
 
 	}
 
-	private static void encodeObject(Object obj, DataOutputStream dataStream) {
-
+	private static void encodeObject(Object obj, DataOutputStream dataStream) throws IOException {
+		if (obj instanceof String) {
+			byte[] stringBytes = ((String) obj).getBytes();
+			dataStream.writeByte(stringBytes.length);
+			dataStream.write(stringBytes);
+		}else if (obj instanceof Integer) {
+			dataStream.writeByte(-1); // unique tag for Integer
+			dataStream.writeInt((Integer) obj);
+		} else if (obj instanceof Double) {
+			dataStream.writeByte(-2); // unique tag for Double/float
+			dataStream.writeDouble((Double) obj);
+		} else if (obj instanceof Boolean) {
+			dataStream.writeByte((Boolean) obj ? -3 : -4); // unique tag for boolean -3/-4 -> true/false
+		} else if (obj == null) {
+			dataStream.writeByte(-5); // unique tag for null values
+		}
 	}
 
-	private static void decodeObject(ByteBuffer buffer) {
 
+	private static Object decodeObject(ByteBuffer buffer) {
+		byte tag = buffer.get();
+
+		switch(tag) {
+		case  -1: // unique tag for integer
+			return buffer.getInt();
+		case -2: // unique tag for double
+			return buffer.getDouble();
+		case -3: // unique tag for true
+			return true;
+		case -4: // unique tag for false
+			return false;
+		case -5: // unique tag for null
+			return null;
+		default: // default case for strings, step G* in sub step 3ii.
+			byte[] stringBytes = new byte[tag];
+			buffer.get(stringBytes);
+			return new String(stringBytes);
+		}
 	}
 
 
