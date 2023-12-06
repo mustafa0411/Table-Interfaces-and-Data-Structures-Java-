@@ -23,6 +23,26 @@ public record Row(String key, List<Object> fields) implements Serializable{
 	}
 
 	public byte[] getBytes() {
+		// Create a list of objects with the key followed by fields
+		List <Object> objectsToEncode = new ArrayList<>();
+		objectsToEncode.add(key);
+		objectsToEncode.addAll(fields);
+
+		// Predict the total number of bytes needed
+		int totalBytes = predictTotalBytes(objectsToEncode);
+
+		// Allocate a byte buffer with the predicted number of bytes
+		ByteBuffer buffer = ByteBuffer .allocate(totalBytes);
+
+		// Encode each object and put the bytes into the buffer
+		for (Object obj : objectsToEncode) {
+			encodeObject(obj, buffer);
+		}
+
+		// Return the byte array from the buffer
+		return buffer.array();
+
+
 		// build the list of key followed by row values:
 		// build a copy of the row (just the row) using a list constructor
 		// then prepend the key to that copy of the row
@@ -41,7 +61,6 @@ public record Row(String key, List<Object> fields) implements Serializable{
 		//			adding all bytes for tag/remainder to the buffer
 
 		//return the array of the byte buffer
-
 	}
 
 	public static Row fromBytes(byte[] bytes) {
@@ -54,6 +73,30 @@ public record Row(String key, List<Object> fields) implements Serializable{
 
 		//return a new pair composed of key/row
 
+	}
+
+	private int predictTotalBytes (List<Object> objects) {
+		// Predict the total number of bytes needed to encode the list of objects
+		int totalBytes = 0;
+		for (Object obj : objects) {
+			totalBytes += predictObjectBytes(obj);
+		}
+		return  totalBytes;
+	}
+
+	private int predictObjectBytes (Object obj) {
+		// Predict the number of bytes needed to encode an object
+		if (obj instanceof String) {
+			return ((String) obj).getBytes().length + 1; // +1 for the tag byte
+		} else if (obj instanceof Integer) {
+			return Integer.BYTES + 1; // +1 for the tag byte
+		} else if (obj instanceof Double) {
+			return Double.BYTES + 1; // +1 for the tag byte
+		} else if (obj instanceof Boolean || obj == null) {
+			return 1; // Only a tag byte is needed for boolean and null values
+		} else {
+			throw new IllegalArgumentException("Unsupported object type: " + obj.getClass());
+		}
 	}
 
 	private static void encodeObject(Object obj, ByteBuffer buffer) {
