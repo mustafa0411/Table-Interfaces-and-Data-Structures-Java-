@@ -139,11 +139,18 @@ public class BinaryTable implements StoredTable {
 
 	private static void writeRow(Path path, Row row) {
 		createParentDirectories(path);
-		try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
-			out.writeObject(row);
-			out.flush();
-			out.close();
 
+		try {
+			if (CUSTOM_ENCODE) {
+				byte[] rowBytes = row.getBytes();
+				Files.write(path, rowBytes);
+
+			} else {
+				var out = new ObjectOutputStream(Files.newOutputStream(path));
+				out.writeObject(row);
+				out.flush();
+				out.close();
+			}
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to write row to file: " + path, e);
 		}

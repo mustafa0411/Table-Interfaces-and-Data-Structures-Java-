@@ -32,7 +32,7 @@ public record Row(String key, List<Object> fields) implements Serializable{
 		int totalBytes = predictTotalBytes(objectsToEncode);
 
 		// Allocate a byte buffer with the predicted number of bytes
-		ByteBuffer buffer = ByteBuffer .allocate(totalBytes);
+		ByteBuffer buffer = ByteBuffer.allocate(totalBytes);
 
 		// Encode each object and put the bytes into the buffer
 		for (Object obj : objectsToEncode) {
