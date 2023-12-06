@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -25,9 +26,10 @@ public class BinaryTable implements StoredTable {
 	 */
 
 	private static final Path BASE_DIR = Path.of("db", "sub", "tables");
-	private Path root, data, metadata;
+	private Path root, data, metadata, virtualRoot, zipRoot;
 	private static final boolean CUSTOM_ENCODE = true;
-
+	private static final boolean ZIP_ARCHIVE = true;
+	private FileSystem zipFileSystem;
 
 	private void createBaseDirectories(Path directory) {
 		try {
@@ -118,7 +120,6 @@ public class BinaryTable implements StoredTable {
 			}
 		} catch (IOException e) {
 			throw new IllegalStateException("Failed to write integer to file: " + path, e);
-
 		}
 	}
 
