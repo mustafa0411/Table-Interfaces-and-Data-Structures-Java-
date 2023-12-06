@@ -1,6 +1,5 @@
 package types;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -104,36 +103,60 @@ public class BinaryTable implements StoredTable {
 	}
 
 	private static void writeInt(Path path, int i)  {
-		if (CUSTOM_ENCODE) {
-			try(ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
-				ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+		try {
+			if (CUSTOM_ENCODE) {
+				ByteBuffer buffer = ByteBuffer.allocate(4);
 				buffer.putInt(i);
-				Files.write(path, buffer.array());
+				var bytes = buffer.array();
+				Files.write(path, bytes);
 
-			} catch (IOException e) {
-				throw new IllegalStateException("Failed to write integer to file: " + path, e);
-			}
-		} else {
-			try(ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
+			} else {
+				var out = new ObjectOutputStream(Files.newOutputStream(path));
 				out.writeInt(i);
 				out.flush();
 				out.close();
-
-			} catch (IOException e) {
-				throw new IllegalStateException("Failed to write integer to file: " + path, e);
 			}
+
+
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed to write integer to file: " + path, e);
+
 		}
+
+
+
+
+
+		//		try(ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(path))) {
+		//			out.writeInt(i);
+		//			out.flush();
+		//			out.close();
+		//
+		//		} catch (IOException e) {
+		//			throw new IllegalStateException("Failed to write integer to file: " + path, e);
+		//		}
 	}
 
 	private static int readInt(Path path) {
-		try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))) {
-			return in.readInt();
-		} catch (EOFException e) {
-			// Handle the EOFException gracefully, possibly returning a default value
-			return 0;
+		try {
+
+
 		} catch (IOException e) {
-			throw new IllegalStateException("Failed to read integer from file: " + path, e);
+
 		}
+
+
+
+
+
+		//		try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))) {
+		//			return in.readInt();
+		//		} catch (EOFException e) {
+		//			// Handle the EOFException gracefully, possibly returning a default value
+		//			return 0;
+		//		} catch (IOException e) {
+		//			throw new IllegalStateException("Failed to read integer from file: " + path, e);
+		//		}
 	}
 
 
