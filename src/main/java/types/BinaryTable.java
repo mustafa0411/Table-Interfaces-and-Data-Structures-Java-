@@ -366,7 +366,13 @@ public class BinaryTable implements StoredTable {
 	}
 	@Override
 	public String name() {
-		return root.getFileName().toString();
+		if (ZIP_ARCHIVE) {
+			// If ZIP_ARCHIVE is true, return the name without the ".zip" extension
+			return root.getFileName().toString().replace(".zip", "");
+		} else {
+			// If ZIP_ARCHIVE is false, return the name as usual
+			return root.getFileName().toString();
+		}
 	}
 
 	@Override
