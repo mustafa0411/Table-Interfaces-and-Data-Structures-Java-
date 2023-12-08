@@ -3,6 +3,7 @@ package types;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
@@ -89,15 +90,40 @@ public class BinaryTable implements StoredTable {
 	}
 
 	public BinaryTable(String name) {
-		this.root = BASE_DIR.resolve(name);
+		try {
+			// Initialize the root directory based on the ZIP_ARCHIVE flag
+			this.root = ZIP_ARCHIVE ? BASE_DIR.resolve(name +".zip") : BASE_DIR.resolve(name);
 
-		if(!Files.exists(root) || !Files.isDirectory(root)) {
-			throw new IllegalArgumentException("Table root directory does not exist: " + root);
+			// Check if the root directory exists and is a directory
+			if(!Files.exists(root) || !Files.isDirectory(root)) {
+				throw new IllegalArgumentException("Table root directory does not exist: " + root);
+			}
+
+			// Zip archive flag
+			// If ZIP_ARCHIVE is true, create a ZIP file system
+			if (ZIP_ARCHIVE) {
+
+				URI zipUri = URI.create("zip.file:" + root.toUri().getPath());
+
+				this.zipFileSystem = FileSystems.newFileSystem(zipUri, Map.of());
+				this.virtualRoot = zipFileSystem.getPath("/");
+
+				this.data = virtualRoot.resolve("data");
+				this.metadata = virtualRoot.resolve("metadata");
+
+			} else {
+				// If ZIP_ARCHIVE is false, use the original code to initialize directories
+				this.data = root.resolve("data");
+				this.metadata = root.resolve("metadata");
+			}
+
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create base directories.");
+
 		}
-
-		this.data = root.resolve("data");
-		this.metadata = root.resolve("metadata");
 	}
+
+
 
 	@Override
 	public void clear() {
