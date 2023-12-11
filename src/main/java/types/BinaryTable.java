@@ -7,6 +7,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +30,7 @@ public class BinaryTable implements StoredTable {
 	 */
 
 	private static final Path BASE_DIR = Path.of("db", "sub", "tables");
-	private Path root, data, metadata, virtualRoot, zipRoot;
+	private Path root, data, metadata, virtualRoot;
 	private static final boolean CUSTOM_ENCODE = true;
 	private static final boolean ZIP_ARCHIVE = true;
 	private FileSystem zipFileSystem;
@@ -123,8 +124,6 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
-
-
 	@Override
 	public void clear() {
 		try {
@@ -184,7 +183,6 @@ public class BinaryTable implements StoredTable {
 			throw new IllegalStateException("Failed to read integer from file: " + path, e);
 		}
 	}
-
 
 	private static void writeRow(Path path, Row row) {
 		createParentDirectories(path);
@@ -266,7 +264,45 @@ public class BinaryTable implements StoredTable {
 		return data.resolve(prefix).resolve(suffix);
 	}
 
+	@Override
+	// needed to set it to public instead of private because of Stored Table interface
+	public void flush () {
+		//Step 1:
+		if (ZIP_ARCHIVE) {
+			// Substep i: If Zip archive flag is true, close the Zip file system
+			// Needed to add this block because of a consistent "FileSystemClosed" exception in the failure trace
+			try {
+				if (zipFileSystem != null && zipFileSystem.isOpen()) {
+					zipFileSystem.close();
+				}
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to close the Zip file system: " + e.getMessage());
+			}
+			try {
+				// Substep ii: Reinitialize the Zip file system at the corresponding path
+				// Used "jar" instead of "zip" for compatibility with certain virtual file system libraries
+				// Needed to use a jar file instead of zip because of a persistent Iterator failure
+				URI zipUri = URI.create("jar:file:" + root.toUri().getPath());
+				zipFileSystem = FileSystems.newFileSystem(zipUri, Map.of());
+			} catch (FileSystemAlreadyExistsException e) {
+				// Logs the error using System.err.println instead of throwing the exception
+				System.err.println("File system already exists: " + e.getMessage());
+				// This is for an already existing file system, same thing as the try block
+				// A consistent "FileSystemAlreadyExists" exception kept getting thrown in the failure trace
+				// Created a ZipFileSystem by obtaining the file system for a JAR file located at the given 'root' path.
+				zipFileSystem = FileSystems.getFileSystem(URI.create("jar:file:" + root.toUri().getPath()));
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to reinitialize the Zip file system.", e);
+			}
 
+			// Substep iii: Reinitializes the virtual root at / under the Zip file system
+			virtualRoot = zipFileSystem.getPath("/");
+
+			// Reinitialize the data and metadata directories under the virtual root
+			data = virtualRoot.resolve("data");
+			metadata = virtualRoot.resolve("metadata");
+		}
+	}
 
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
@@ -356,6 +392,11 @@ public class BinaryTable implements StoredTable {
 	@Override
 	public Iterator<Row> iterator() {
 		try {
+			// If the Zip archive flag is true, call the flush method.
+			if (ZIP_ARCHIVE) {
+				flush();
+			}
+
 			return Files.walk(data)
 					.filter(path -> Files.isRegularFile(path)) // Filter only regular files, not directories
 					.map(path -> readRow(path))
@@ -364,6 +405,7 @@ public class BinaryTable implements StoredTable {
 			throw new IllegalStateException(e);
 		}
 	}
+
 	@Override
 	public String name() {
 		if (ZIP_ARCHIVE) {
