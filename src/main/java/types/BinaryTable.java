@@ -35,6 +35,12 @@ public class BinaryTable implements StoredTable {
 	private static final boolean ZIP_ARCHIVE = true;
 	private FileSystem zipFileSystem;
 
+
+	/**
+	 * Creates the base directories at the specified path.
+	 *
+	 * @param directory The path for which base directories are to be created.
+	 */
 	private void createBaseDirectories(Path directory) {
 		try {
 			Files.createDirectories(directory);
@@ -45,6 +51,12 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Creates parent directories for the given path.
+	 *
+	 * @param path The path for which parent directories are to be created.
+	 */
 	private static void createParentDirectories(Path path) {
 		try {
 			Files.createDirectories(path.getParent());
@@ -53,6 +65,13 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Constructor for creating a BinaryTable with specified name and columns.
+	 *
+	 * @param name    The name of the BinaryTable.
+	 * @param columns The list of columns for the BinaryTable.
+	 */
 	public BinaryTable(String name, List<String> columns) {
 		try {
 			if (ZIP_ARCHIVE) {
@@ -90,6 +109,12 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Constructor for creating a BinaryTable with a specified name.
+	 *
+	 * @param name The name of the BinaryTable.
+	 */
 	public BinaryTable(String name) {
 		try {
 			// Initialize the root directory based on the ZIP_ARCHIVE flag
@@ -124,6 +149,10 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Clears the data and metadata directories associated with the BinaryTable.
+	 */
 	@Override
 	public void clear() {
 		try {
@@ -148,6 +177,13 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Writes an integer value to the specified path.
+	 *
+	 * @param path The path to write the integer value.
+	 * @param i    The integer value to be written.
+	 */
 	private static void writeInt(Path path, int i)  {
 		try {
 			if (CUSTOM_ENCODE) {
@@ -168,6 +204,13 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Reads an integer value from the specified path.
+	 *
+	 * @param path The path from which to read the integer value.
+	 * @return The integer value read from the file.
+	 */
 	private static int readInt(Path path) {
 		try {
 			if (CUSTOM_ENCODE) {
@@ -184,6 +227,13 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Writes a Row object to the specified path.
+	 *
+	 * @param path The path to write the Row object.
+	 * @param row  The Row object to be written.
+	 */
 	private static void writeRow(Path path, Row row) {
 		createParentDirectories(path);
 
@@ -204,6 +254,13 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Reads a Row object from the specified path.
+	 *
+	 * @param path The path from which to read the Row object.
+	 * @return The Row object read from the file.
+	 */
 	private static Row readRow(Path path) {
 		try {
 			if (CUSTOM_ENCODE) {
@@ -220,6 +277,12 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Deletes a Row object file specified by the path.
+	 *
+	 * @param path The path of the Row object file to be deleted.
+	 */
 	private static void deleteRow(Path path) {
 		try {
 			Files.delete(path);
@@ -233,6 +296,13 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Computes the digest of the given key using the SHA-1 algorithm.
+	 *
+	 * @param key The key for which to compute the digest.
+	 * @return The hexadecimal digest of the key.
+	 */
 	private String digestFunction(String key) {
 		try {
 			var sha1 = MessageDigest.getInstance("SHA-1");
@@ -250,6 +320,13 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Resolves the path based on the provided digest.
+	 *
+	 * @param digest The digest used to construct the path.
+	 * @return The resolved path.
+	 */
 	private Path pathOf(String digest) {
 		// Check if the digest is a valid hexadecimal string
 		if (!digest.matches("[0-9a-fA-F]{40}")) {
@@ -264,6 +341,10 @@ public class BinaryTable implements StoredTable {
 		return data.resolve(prefix).resolve(suffix);
 	}
 
+
+	/**
+	 * Flushes the BinaryTable, ensuring data consistency after modifications.
+	 */
 	@Override
 	// needed to set it to public instead of private because of Stored Table interface
 	public void flush () {
@@ -304,6 +385,14 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Inserts or updates a row with the specified key and fields.
+	 *
+	 * @param key    The key of the row.
+	 * @param fields The list of fields for the row.
+	 * @return The list of fields from the previous row with the same key, or null if the key was not present.
+	 */
 	@Override
 	public List<Object> put(String key, List<Object> fields) {
 		if (degree() != fields.size() + 1) {
@@ -329,6 +418,13 @@ public class BinaryTable implements StoredTable {
 
 	}
 
+
+	/**
+	 * Retrieves the fields of the row with the specified key.
+	 *
+	 * @param key The key of the row to retrieve.
+	 * @return The list of fields of the specified row, or null if the key was not present.
+	 */
 	@Override
 	public List<Object> get(String key) {
 		String digest = digestFunction(key);
@@ -342,6 +438,13 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Removes the row with the specified key from the BinaryTable.
+	 *
+	 * @param key The key of the row to be removed.
+	 * @return The list of fields from the removed row, or null if the key was not present.
+	 */
 	@Override
 	public List<Object> remove(String key) {
 		String digest = digestFunction(key);
@@ -358,21 +461,46 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Returns the degree of the BinaryTable, i.e., the number of columns.
+	 *
+	 * @return The degree of the BinaryTable.
+	 */
 	@Override
 	public int degree() {
 		return columns().size();
 	}
 
+
+	/**
+	 * Returns the size of the BinaryTable, i.e., the number of rows.
+	 *
+	 * @return The size of the BinaryTable.
+	 */
 	@Override
 	public int size() {
 		return readInt(metadata.resolve("size"));
 	}
 
+
+	/**
+	 * Returns the hash code of the BinaryTable, representing its fingerprint.
+	 *
+	 * @return The hash code of the BinaryTable.
+	 */
 	@Override
 	public int hashCode() {
 		return readInt(metadata.resolve("fingerprint"));
 	}
 
+
+	/**
+	 * Compares the BinaryTable with another object for equality.
+	 *
+	 * @param obj The object to compare with the BinaryTable.
+	 * @return True if the objects are equal, false otherwise.
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -389,6 +517,12 @@ public class BinaryTable implements StoredTable {
 		return this.hashCode() == otherTable.hashCode();
 	}
 
+
+	/**
+	 * Returns an iterator over the rows of the BinaryTable.
+	 *
+	 * @return An iterator over the rows of the BinaryTable.
+	 */
 	@Override
 	public Iterator<Row> iterator() {
 		try {
@@ -406,6 +540,12 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Returns the name of the BinaryTable.
+	 *
+	 * @return The name of the BinaryTable.
+	 */
 	@Override
 	public String name() {
 		if (ZIP_ARCHIVE) {
@@ -417,6 +557,12 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Returns the list of columns in the BinaryTable.
+	 *
+	 * @return The list of columns in the BinaryTable.
+	 */
 	@Override
 	public List<String> columns() {
 		try {
@@ -426,6 +572,12 @@ public class BinaryTable implements StoredTable {
 		}
 	}
 
+
+	/**
+	 * Returns a string representation of the BinaryTable in tabular view.
+	 *
+	 * @return A string representation of the BinaryTable.
+	 */
 	@Override
 	public String toString() {
 		return toTabularView(false);

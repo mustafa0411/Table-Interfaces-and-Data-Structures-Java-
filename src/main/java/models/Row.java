@@ -22,6 +22,12 @@ public record Row(String key, List<Object> fields) implements Serializable{
 		}
 	}
 
+
+	/**
+	 * Converts the key and fields of a Row into a byte array using a simple encoding scheme.
+	 *
+	 * @return The byte array representation of the Row.
+	 */
 	public byte[] getBytes() {
 		// Create a list of objects with the key followed by fields
 		List <Object> objectsToEncode = new ArrayList<>();
@@ -43,6 +49,13 @@ public record Row(String key, List<Object> fields) implements Serializable{
 		return buffer.array();
 	}
 
+
+	/**
+	 * Decodes a byte array into a new Row object, extracting the key and fields.
+	 *
+	 * @param bytes The byte array to decode into a Row.
+	 * @return A new Row object with the key and fields.
+	 */
 	public static Row fromBytes(byte[] bytes) {
 		// Create a list of objects to be filled with decoded values
 		List<Object> decodedObjects = new ArrayList<>();
@@ -59,6 +72,13 @@ public record Row(String key, List<Object> fields) implements Serializable{
 		return new Row((String) decodedObjects.get(0), decodedObjects.subList(1, decodedObjects.size()));
 	}
 
+
+	/**
+	 * Predicts the total number of bytes needed to encode the given list of objects.
+	 *
+	 * @param objects The list of objects to be encoded.
+	 * @return The predicted total number of bytes.
+	 */
 	private int predictTotalBytes (List<Object> objects) {
 		// Predict the total number of bytes needed to encode the list of objects
 		int totalBytes = 0;
@@ -68,6 +88,13 @@ public record Row(String key, List<Object> fields) implements Serializable{
 		return  totalBytes;
 	}
 
+
+	/**
+	 * Predicts the number of bytes needed to encode a specific object.
+	 *
+	 * @param obj The object to be encoded.
+	 * @return The predicted number of bytes needed.
+	 */
 	private int predictObjectBytes (Object obj) {
 		// Predict the number of bytes needed to encode an object
 		if (obj instanceof String) {
@@ -83,6 +110,13 @@ public record Row(String key, List<Object> fields) implements Serializable{
 		}
 	}
 
+
+	/**
+	 * Encodes a specific object and puts the bytes into the given ByteBuffer.
+	 *
+	 * @param obj    The object to be encoded.
+	 * @param buffer The ByteBuffer to store the encoded bytes.
+	 */
 	private static void encodeObject(Object obj, ByteBuffer buffer) {
 		if (obj instanceof String) {
 			byte[] stringBytes = ((String) obj).getBytes();
@@ -102,6 +136,12 @@ public record Row(String key, List<Object> fields) implements Serializable{
 	}
 
 
+	/**
+	 * Decodes an object from the given ByteBuffer.
+	 *
+	 * @param buffer The ByteBuffer containing the encoded bytes.
+	 * @return The decoded object.
+	 */
 	private static Object decodeObject(ByteBuffer buffer) {
 		byte tag = buffer.get();
 
