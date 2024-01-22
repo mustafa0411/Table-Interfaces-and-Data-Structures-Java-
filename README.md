@@ -1,17 +1,20 @@
-# CS 210 for Fall 2023
+# Table Interfaces and Data Structures (Java)
 
-This is the project for **CS 210: File and Data Structures**. Follow the instructions for each module to complete the project.
+One Paragraph of project description goes here
 
-## Authorship
+## Description
 
-I am the author of all original work committed to this repository, as identified below:
+This Java Git repository is developed to showcase proficiency in data structures. The project implements various data structures and emphasizes key table interfaces, including JSON, XML, and HashTable, etc. A total of seven table interfaces have been developed, each accompanied by unit tests to ensure correctness and validity in the implementation.
 
-+ **Full Name:** Mustafa Al-Shebeeb
-+ **University Email:** ma00056@mix.wvu.edu
-+ **Student ID:** 800356480
 
-If I am pair programming, my co-author's contributions are attributed in the comments of each file.
+## Built With
 
-## Academic Integrity
+* [Java](https://www.java.com/en/) - The Programming Language Used
+* [Maven](https://maven.apache.org/) - Dependency Management
+* [JUnit](https://junit.org/junit5/) - Testing framework for Java
 
-By identifying my authorship above, I pledge to follow the academic integrity policy as defined in the syllabus.
+
+## Authors
+
+* **Mustafa Al-Shebeeb** - *Main Programmer* - [mustafa0411](https://github.com/mustafa0411)
+
